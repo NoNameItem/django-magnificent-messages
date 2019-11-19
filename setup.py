@@ -2,7 +2,6 @@
 
 from setuptools import setup
 
-import cool_django_auth_ldap
 
 with open("README.rst") as fp:
     readme = fp.read()
