@@ -2,12 +2,6 @@ dist: xenial
 language: python
 cache: pip
 
-addons:
-  apt:
-    packages:
-      - ldap-utils
-      - slapd
-
 python:
   - "3.5"
   - "3.6"      # current default Python on Travis CI
@@ -51,7 +45,9 @@ jobs:
       if: tag IS present
       python: 3.7
       env: DJANGO=Django==2.2
-      script: skip
+      script:
+        - echo '[![Travis](https://img.shields.io/travis/NoNameItem/cool-django-auth-ldap/'${TRAVIS_TAG}'?style=flat-square)](https://travis-ci.org/NoNameItem/cool-django-auth-ldap/builds/'${TRAVIS_BUILD_ID}') [![Read the Docs](https://img.shields.io/readthedocs/cool-django-auth-ldap/'${TRAVIS_TAG}'?style=flat-square)](https://cool-django-auth-ldap.readthedocs.io/en/'${TRAVIS_TAG}'/) [![Coveralls](https://img.shields.io/coveralls/github/NoNameItem/cool-django-auth-ldap/'${TRAVIS_TAG}'?style=flat-square)](https://coveralls.io/github/NoNameItem/cool-django-auth-ldap?branch='${TRAVIS_TAG}')' > release_notes
+        - cat CHANGES >> release_notes
       deploy:
         - provider: pypi
           edge: true
@@ -65,12 +61,12 @@ jobs:
         - provider: releases
           edge: true
           name: "$TRAVIS_TAG"
-          release_notes_file: CHANGE
+          release_notes_file: release_hotes
           cleanup: false
           overwrite: true
           file:
             - ./dist/*.whl
-            - ChangeLog
+            - CHANGES
           on:
             tags: true
   allow_failures:
