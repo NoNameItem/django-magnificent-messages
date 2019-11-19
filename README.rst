@@ -11,11 +11,11 @@ Master
    :target: https://django-magnificent-messages.readthedocs.io/en/develop/
 .. image:: https://img.shields.io/codeclimate/maintainability/NoNameItem/django-magnificent-messages?style=flat-square
    :target: https://codeclimate.com/github/NoNameItem/django-magnificent-messages
-.. image:: https://img.shields.io/pypi/v/cool-django-auth-ldap?style=flat-square
+.. image:: https://img.shields.io/pypi/v/django-magnificent-messages?style=flat-square
    :target: https://pypi.org/project/django-magnificent-messages/
-.. image:: https://img.shields.io/pypi/pyversions/cool-django-auth-ldap?style=flat-square
+.. image:: https://img.shields.io/pypi/pyversions/django-magnificent-messages?style=flat-square
    :target: https://pypi.org/project/django-magnificent-messages/
-.. image:: https://img.shields.io/pypi/djversions/cool-django-auth-ldap?style=flat-square
+.. image:: https://img.shields.io/pypi/djversions/django-magnificent-messages?style=flat-square
    :target: https://pypi.org/project/django-magnificent-messages/
 
 Develop
