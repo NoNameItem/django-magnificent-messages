@@ -25,7 +25,7 @@ env:
 install:
   - pip install -q $DJANGO
   - python -m django --version
-  - pip install -r requirements-ci.txt
+  - pip install -r requirements_ci.txt
 
 script:
   - coverage run manage.py test --settings tests.settings
