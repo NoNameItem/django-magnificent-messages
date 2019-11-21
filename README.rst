@@ -42,3 +42,6 @@ Readme
 ======
 
 All-in-one Django message app! Coming soon!
+
+.. image:: https://coveralls.io/repos/github/NoNameItem/django-magnificent-messages/badge.svg?branch=master
+   :target: https://coveralls.io/github/NoNameItem/django-magnificent-messages?branch=master
