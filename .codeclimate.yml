@@ -10,7 +10,6 @@ exclude_patterns:
   - "**/spec/"
   - "**/test/"
   - "**/tests/"
-  - "test_project/"
   - "Tests/"
   - "**/vendor/"
   - "**/*_test.go"

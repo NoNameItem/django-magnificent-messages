@@ -1,6 +1,6 @@
 [run]
+branch = true
 source = django_magnificent_messages
-branch = True
 
 [report]
 show_missing = True
