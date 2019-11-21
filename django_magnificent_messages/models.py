@@ -7,8 +7,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 from .conf import MessageConfig
-
-CONFIG = MessageConfig()
+config = MessageConfig()
 
 
 class Message(TimeStampedModel):

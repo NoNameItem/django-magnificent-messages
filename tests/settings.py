@@ -12,7 +12,7 @@ SECRET_KEY = "8ah(*5$ds!4-284y0shckwgn%uun&5!up#@yz&k(5xs+)2bqlw"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": "test_db.sqlite3",
     }
 }
 
@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sites",
-    "django_magnificent_messages",
+    "django_magnificent_messages.apps.DjangoMagnificentMessagesConfig",
     "tests"
 ]
 

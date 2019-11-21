@@ -84,6 +84,10 @@ class JSONField(models.TextField):
         self._encode_parameter = encode  # Saving for deconstruct
         self._decode_parameter = decode  # Saving for deconstruct
 
+    def check(self, **kwargs):
+        errors = super(JSONField, self).check(**kwargs)
+        return errors + self._check_encode(**kwargs) + self._check_decode(**kwargs)
+
     def _check_encode(self, **_):
         if not callable(self.encode):
             return [
@@ -96,7 +100,7 @@ class JSONField(models.TextField):
         return []
 
     def _check_decode(self, **_):
-        if not callable(self.encode):
+        if not callable(self.decode):
             return [
                 checks.Error(
                     "Parameter `decode` of `JSONField` should be callable",

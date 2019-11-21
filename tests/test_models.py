@@ -1,10 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
-test_django-magnificent-messages
-------------
-
 Tests for `django-magnificent-messages` models module.
 """
 
