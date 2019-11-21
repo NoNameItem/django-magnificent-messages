@@ -1,7 +1,10 @@
-# -*- coding: utf-8
+"""
+django_magnificent_messages AppConfig
+"""
 from django.apps import AppConfig
+from django.utils.translation import gettext_lazy as _
 
 
-class AppConfig(AppConfig):
+class DjangoMagnificentMessagesConfig(AppConfig):
     name = 'django_magnificent_messages'
     verbose_name = _('Magnificent Messages')

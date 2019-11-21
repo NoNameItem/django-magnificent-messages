@@ -1,3 +1,7 @@
+"""
+Constants and defaults values
+"""
+
 SECONDARY = 10
 PRIMARY = 20
 INFO = 30

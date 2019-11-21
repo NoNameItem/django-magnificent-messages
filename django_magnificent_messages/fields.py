@@ -55,12 +55,11 @@ class JSONField(models.TextField):
             }
         )
 
-
     @staticmethod
     def _default_encode(value: object) -> str:
         try:
             return json.dumps(value, ensure_ascii=False, sort_keys=True)
-        except TypeError as err:
+        except TypeError:
             raise JSONFieldConvertError(
                 value,
                 message=_("Error while decoding value `%(value)r` in field `%(name)s"),
@@ -71,7 +70,7 @@ class JSONField(models.TextField):
     def _default_decode(json_string: str) -> object:
         try:
             return json.loads(json_string)
-        except (TypeError, json.decoder.JSONDecodeError) as err:
+        except (TypeError, json.decoder.JSONDecodeError):
             raise JSONFieldConvertError(
                 json_string,
                 message=_("Error while decoding value `%(value)r` in field `%(name)s"),
@@ -82,6 +81,8 @@ class JSONField(models.TextField):
         super(JSONField, self).__init__(**kwargs)
         self.encode = encode if encode is not None else self._default_encode
         self.decode = decode if decode is not None else self._default_decode
+        self._encode_parameter = encode  # Saving for deconstruct
+        self._decode_parameter = decode  # Saving for deconstruct
 
     def _check_encode(self, **_):
         if not callable(self.encode):
@@ -92,6 +93,7 @@ class JSONField(models.TextField):
                     id='django_magnificent_messages.E101',
                 )
             ]
+        return []
 
     def _check_decode(self, **_):
         if not callable(self.encode):
@@ -102,16 +104,17 @@ class JSONField(models.TextField):
                     id='django_magnificent_messages.E102',
                 )
             ]
+        return []
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        if self.encode != self._default_encode:
-            kwargs['encode'] = self.encode
-        if self.decode != self._default_decode:
-            kwargs['decode'] = self.decode
+        if self._encode_parameter is not None:
+            kwargs['encode'] = self._encode_parameter
+        if self._decode_parameter is not None:
+            kwargs['decode'] = self._decode_parameter
         return name, path, args, kwargs
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(self, value, *_):
         if value is None:
             return value
         try:

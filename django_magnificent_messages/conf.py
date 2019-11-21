@@ -1,4 +1,7 @@
-from django.conf import settings
+"""
+Getting application settings from settings.py
+"""
+
 from appconf import AppConf
 
 from django_magnificent_messages import constants

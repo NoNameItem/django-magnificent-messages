@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'django_magnificent_messages',
+    'django_magnificent_messages.apps.DjangoMagnificentMessagesConfig',
 
     # if your app has other dependencies that need to be added to the site
     # they should be added here

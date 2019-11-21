@@ -1,15 +1,22 @@
-# -*- coding: utf-8 -*-
-
+"""
+Models for django_magnificient_messages
+"""
+from django.conf import settings
 from django.db import models
 
 from model_utils.models import TimeStampedModel
 
-from .conf import settings, MessageConfig
+from .conf import MessageConfig
 
-config = MessageConfig()
+CONFIG = MessageConfig()
 
 
 class Message(TimeStampedModel):
+    """
+    Main model for app.
+
+    Stores one record for every message in system
+    """
     level = models.IntegerField()
     persistent = models.BooleanField()
 
@@ -23,6 +30,3 @@ class Message(TimeStampedModel):
                                  related_name="replies")
     send_to_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="inbox")
     send_to_group = models.ManyToManyField('auth.Group', related_name="inbox")
-    
-
-

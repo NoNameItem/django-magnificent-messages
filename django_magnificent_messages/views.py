@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+"""
+django_magnificent_messages views
+"""
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -7,9 +9,7 @@ from django.views.generic import (
     ListView
 )
 
-from .models import (
-	Message,
-)
+from .models import Message
 
 
 class MessageCreateView(CreateView):
@@ -35,4 +35,3 @@ class MessageUpdateView(UpdateView):
 class MessageListView(ListView):
 
     model = Message
-
