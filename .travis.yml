@@ -58,7 +58,7 @@ jobs:
       env: DJANGO=Django==2.2
       script:
         - echo '[![Travis](https://img.shields.io/travis/NoNameItem/django-magnificent-messages/'${TRAVIS_TAG}'?style=flat-square)](https://travis-ci.org/NoNameItem/django-magnificent-messages/builds/'${TRAVIS_BUILD_ID}') [![Read the Docs](https://img.shields.io/readthedocs/django-magnificent-messages/'${TRAVIS_TAG}'?style=flat-square)](https://django-magnificent-messages.readthedocs.io/en/'${TRAVIS_TAG}'/) [![Coveralls](https://img.shields.io/coveralls/github/NoNameItem/django-magnificent-messages/'${TRAVIS_TAG}'?style=flat-square)](https://coveralls.io/github/NoNameItem/django-magnificent-messages?branch='${TRAVIS_TAG}')' > release_notes
-        - cat CHANGES >> release_notes
+        - gitchangelog >> release_notes
       deploy:
         - provider: pypi
           edge: true
@@ -88,15 +88,15 @@ jobs:
     - python: "nightly"
       env: DJANGO="Django==2.2"
     - python: "nightly"
-      env: DJANGO="--pre Django""
+      env: DJANGO="--pre Django"
     - python: "3.5"
-      env: DJANGO="--pre Django""
+      env: DJANGO="--pre Django"
     - python: "3.6"
-      env: DJANGO="--pre Django""
+      env: DJANGO="--pre Django"
     - python: "3.7"
-      env: DJANGO="--pre Django""
+      env: DJANGO="--pre Django"
     - python: "3.8"
-      env: DJANGO="--pre Django""
+      env: DJANGO="--pre Django"
 
 
 notifications:

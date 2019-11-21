@@ -9,3 +9,4 @@ wheel
 twine
 pbr
 django-appconf
+gitchangelog
