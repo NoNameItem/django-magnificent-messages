@@ -19,6 +19,7 @@ exclude_patterns:
   - "**/.idea/"
   - "**/manage.py"
   - ".pylintrc"
+  - "docs/"
 
 checks:
   argument-count:
