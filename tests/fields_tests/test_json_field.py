@@ -10,7 +10,7 @@ from django.db import connection
 from django.test import TestCase
 
 from django_magnificent_messages.fields import JSONField
-from . import models
+from tests import models
 
 
 class TestJsonField(TestCase):
