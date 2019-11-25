@@ -12,7 +12,7 @@ SECRET_KEY = "8ah(*5$ds!4-284y0shckwgn%uun&5!up#@yz&k(5xs+)2bqlw"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": "test_db.sqlite3",
     }
 }
 
@@ -28,7 +28,3 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = ()
-else:
-    MIDDLEWARE_CLASSES = ()
