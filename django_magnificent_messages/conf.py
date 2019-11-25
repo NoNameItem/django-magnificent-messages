@@ -1,6 +1,7 @@
 """
 Getting application settings from settings.py
 """
+from django.conf import settings
 
 from appconf import AppConf
 
@@ -12,7 +13,11 @@ class MessageConfig(AppConf):
     LEVEL_TAGS = constants.DEFAULT_TAGS
     MINIMAL_LEVEL = constants.INFO
     MESSAGE_FILES_UPLOAD_TO = constants.MESSAGE_FILES_UPLOAD_TO
-    MESSAGE_DB_MODEL = constants.MESSAGE_DB_MODEL
+    NOTIFICATION_STORAGE = constants.DEFAULT_NOTIFICATION_STORAGE
+    MESSAGE_STORAGE = constants.DEFAULT_MESSAGE_STORAGE
 
     class Meta:
-        prefix = 'dmm'
+        prefix = 'DMM'
+
+
+config = MessageConfig()

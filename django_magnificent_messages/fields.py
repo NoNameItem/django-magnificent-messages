@@ -14,7 +14,7 @@ class JSONFieldConvertError(Exception):
     Wrapper for all convert error.
 
     Should be used in encode/decode functions. Has three attributes:
-      * message - message to be passed to ValidationError. You can use format syntax and following substitutions
+      * text - text to be passed to ValidationError. You can use format syntax and following substitutions
         - {name} - field name
         - {verbose_name} - field verbose name
         - {value} - value which was passed as arg
@@ -62,7 +62,7 @@ class JSONField(models.TextField):
         except TypeError:
             raise JSONFieldConvertError(
                 value,
-                message=_("Error while decoding value `%(value)r` in field `%(name)s"),
+                message=_("Error while decoding value `%(value)r` in field `%(name)s`"),
                 code="encode_error"
             )
 

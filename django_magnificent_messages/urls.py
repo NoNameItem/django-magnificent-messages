@@ -8,27 +8,27 @@ from . import views
 app_name = 'django_magnificent_messages'
 urlpatterns = [
     path(
-        "message/create",
+        "text/create",
         views.MessageCreateView.as_view(),
         name='Message_create',
     ),
     path(
-        "message/<int:pk>/delete",
+        "text/<int:pk>/delete",
         views.MessageDeleteView.as_view(),
         name='Message_delete',
     ),
     path(
-        "message/<int:pk>",
+        "text/<int:pk>",
         views.MessageDetailView.as_view(),
         name='Message_detail',
     ),
     path(
-        "message/<int:pk>/update",
+        "text/<int:pk>/update",
         views.MessageUpdateView.as_view(),
         name='Message_update',
     ),
     path(
-        "message",
+        "text",
         views.MessageListView.as_view(),
         name='Message_list',
     ),
