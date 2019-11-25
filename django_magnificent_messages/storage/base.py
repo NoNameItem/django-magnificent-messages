@@ -23,7 +23,8 @@ class Message:
         Prepare the text for serialization by forcing the ``subject`` and ``text``
         to str in case they are lazy translations.
         """
-        self.subject = str(self.subject)
+        if self.subject is not None:
+            self.subject = str(self.subject)
         self.text = str(self.text)
 
     def __eq__(self, other):

@@ -7,7 +7,7 @@ def get_level(request):
     """
     Return the minimum level of messages to be recorded.
 
-    The default level is the ``MESSAGE_LEVEL`` setting. If this is not found,
+    The default level is the ``DMM_MINIMAL_LEVEL`` setting. If this is not found,
     use the ``INFO`` level.
     """
     dmm_backend = getattr(request, 'dmm_backend', MessageBackend(request))  # type: MessageBackend

@@ -18,9 +18,6 @@ class BaseNotificationStorage(BaseStorage):
     def __len__(self):
         return len(self._loaded) + len(self._queued)
 
-    def __contains__(self, item):
-        return item in self._loaded or item in self._queued
-
     def _get_iterator(self):
         if self._queued:
             self._loaded.extend(self._queued)

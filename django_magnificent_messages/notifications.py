@@ -16,7 +16,7 @@ class NotificationFailure(Exception):
 def add(request: HttpRequest, level: int, text: str, subject: str = None, extra=None,
         fail_silently: bool = False) -> None:
     """
-    Attempt to add a notification to the request using the 'django_magnificent_messages' app.
+    Attempt to notifications_add a notification to the request using the 'django_magnificent_messages' app.
     """
     try:
         backend = request.dmm_backend  # type: MessageBackend

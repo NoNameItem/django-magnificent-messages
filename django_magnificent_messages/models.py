@@ -161,7 +161,7 @@ class Inbox(models.Model):
         **You should not use this method directly. Use properties instead**
 
         :param set_last_checked: should method update last_checked?
-        :param archived: If False (default) - exclude archived. If true - show only archived
+        :param archived: If False (default) - exclude archived. If true - notifications_show only archived
         :param q: Q object to filter messages
         :return:
         """

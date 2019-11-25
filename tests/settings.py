@@ -3,6 +3,8 @@ from __future__ import unicode_literals, absolute_import
 
 import django
 
+# import django_magnificent_messages.constants as message_constants
+
 DEBUG = True
 USE_TZ = True
 
@@ -27,4 +29,9 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+
+MIDDLEWARE = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    "django_magnificent_messages.middleware.MessageMiddleware",
+)
 

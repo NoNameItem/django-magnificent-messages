@@ -10,8 +10,8 @@ from .conf import settings as config
 class MessageBackend:
     def __init__(self, request):
         self._notification_storage = \
-            import_string(config.NOTIFICATION_STORAGE)(request)  # type: BaseNotificationStorage
-        self._message_storage = import_string(config.MESSAGE_STORAGE)(request)  # type: BaseMessageStorage
+            import_string(config.DMM_NOTIFICATION_STORAGE)(request)  # type: BaseNotificationStorage
+        self._message_storage = import_string(config.DMM_MESSAGE_STORAGE)(request)  # type: BaseMessageStorage
 
     @property
     def notifications(self) -> Iterable:

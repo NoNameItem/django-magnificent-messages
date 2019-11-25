@@ -95,7 +95,7 @@ class CookieStorage(BaseNotificationStorage):
 
         If the encoded data is larger than ``max_cookie_size``, remove
         notifications until the data fits (these are the notifications which are
-        returned), and add the not_finished sentinel value to indicate as much.
+        returned), and notifications_add the not_finished sentinel value to indicate as much.
         """
         unstored_notifications = []
         encoded_data = self._encode(notifications)
@@ -112,7 +112,7 @@ class CookieStorage(BaseNotificationStorage):
                     unstored_notifications.append(notifications.pop(0))
                 else:
                     unstored_notifications.insert(0, notifications.pop())
-                encoded_data = self._encode(messages + [self.not_finished],
+                encoded_data = self._encode(notifications + [self.not_finished],
                                             encode_empty=bool(unstored_notifications))
         self._update_cookie(encoded_data, response)
         return unstored_notifications
