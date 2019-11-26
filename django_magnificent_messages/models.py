@@ -1,10 +1,14 @@
 """
 Models for django_magnificent_messages
 """
+from functools import wraps
+
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.functional import SimpleLazyObject
+from django.core.exceptions import ValidationError
 
 from model_utils.models import TimeStampedModel
 
@@ -14,7 +18,7 @@ from .conf import settings
 from .storage.message_storage.db_signals import message_archived, message_read, message_unarchived, message_unread
 
 
-class MessageManager(models.Manager):
+class MessageNotSentToUserError(Exception):
     pass
 
 
@@ -37,13 +41,11 @@ class Message(TimeStampedModel):
                                  related_name="replies", null=True)
     sent_to_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="messages",
                                            db_table="mm_message_sent_to_user")
-    sent_to_group = models.ManyToManyField('auth.Group', related_name="messages", db_table="mm_message_sent_to_group")
+    sent_to_groups = models.ManyToManyField('auth.Group', related_name="messages", db_table="mm_message_sent_to_group")
     read_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="read_messages",
                                      db_table="mm_message_read_by_user")
     archived_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="archived_messages",
                                          db_table="mm_message_archived_by_user")
-
-    objects = models.Manager()
 
     class Meta:
         db_table = "mm_message"
@@ -55,21 +57,55 @@ class Message(TimeStampedModel):
         )
         ordering = ("created",)
 
+    def _is_user_in_recipients(self, user):
+        if user in self.sent_to_users.all():
+            return True
+        if hasattr(user, "groups"):
+            for group in user.groups.all():
+                if group in self.sent_to_groups.all():
+                    return True
+        return False
+
     def archive(self, user):
-        self.archived_by.add(user)
-        message_archived.send(sender=self.__class__, message=self, user=user)
+
+        if self._is_user_in_recipients(user):
+            self.archived_by.add(user)
+            message_archived.send(sender=self.__class__, message=self, user=user)
+        else:
+            raise MessageNotSentToUserError(
+                "{0} was not sent to user, who tried to archive it".format(self)
+            )
 
     def unarchive(self, user):
-        self.archived_by.remove(user)
-        message_unarchived.send(sender=self.__class__, message=self, user=user)
+
+        if self._is_user_in_recipients(user):
+            self.archived_by.remove(user)
+            message_unarchived.send(sender=self.__class__, message=self, user=user)
+        else:
+            raise MessageNotSentToUserError(
+                "{0} was not sent to user, who tried to unarchive ir".format(self)
+            )
 
     def mark_read(self, user):
-        self.read_by.add(user)
-        message_read.send(sender=self.__class__, message=self, user=user)
+        if self._is_user_in_recipients(user):
+            self.read_by.add(user)
+            message_read.send(sender=self.__class__, message=self, user=user)
+        else:
+            raise MessageNotSentToUserError(
+                "{0} was not sent to user, who tried to mark it as read".format(self)
+            )
 
     def mark_unread(self, user):
-        self.read_by.remove(user)
-        message_unread.send(sender=self.__class__, message=self, user=user)
+        if self._is_user_in_recipients(user):
+            self.read_by.remove(user)
+            message_unread.send(sender=self.__class__, message=self, user=user)
+        else:
+            raise MessageNotSentToUserError(
+                "{0} was not sent to user, who tried to mark it as unread".format(self)
+            )
+
+    def __str__(self):
+        return "<Message: {0}>".format(self.pk)
 
 
 class Inbox(models.Model):
@@ -88,7 +124,7 @@ class Inbox(models.Model):
     last_checked = models.DateTimeField(default=constants.MIN_DATETIME)
 
     @property
-    def all(self) -> QuerySet:
+    def all(self) -> SimpleLazyObject:
         return self._all()
 
     @property
@@ -96,7 +132,7 @@ class Inbox(models.Model):
         return self._all(set_last_checked=False).count()
 
     @property
-    def read(self) -> QuerySet:
+    def read(self) -> SimpleLazyObject:
         return self._read(set_last_checked=False)
 
     @property
@@ -104,7 +140,7 @@ class Inbox(models.Model):
         return self._read(set_last_checked=False).count()
 
     @property
-    def unread(self) -> QuerySet:
+    def unread(self) -> SimpleLazyObject:
         return self._unread()
 
     @property
@@ -112,8 +148,8 @@ class Inbox(models.Model):
         return self._unread(set_last_checked=False).count()
 
     @property
-    def archived(self) -> QuerySet:
-        return self._get_messages(set_last_checked=False, archived=True)
+    def archived(self) -> SimpleLazyObject:
+        return self._get_messages_lazy(set_last_checked=False, archived=True)
 
     @property
     def archived_count(self) -> int:
@@ -121,11 +157,11 @@ class Inbox(models.Model):
 
     @property
     def new(self):
-        return self._all().filter(created__gt=self.last_checked)
+        return self._new()
 
     @property
     def new_count(self):
-        return self._all(set_last_checked=False).filter(created__gt=self.last_checked)
+        return self._new(set_last_checked=False).count()
 
     class Meta:
         db_table = "mm_inbox"
@@ -138,7 +174,7 @@ class Inbox(models.Model):
         """
         Preventing more than one main inbox
         """
-        if self.main and Inbox.objects.filter(user=self.user, main=True):
+        if self.main and Inbox.objects.filter(user=self.user, main=True).exclude(pk=self.pk).exists():
             raise ValidationError(
                 _("User %(user)s already has main inbox"),
                 code="invalid",
@@ -173,10 +209,10 @@ class Inbox(models.Model):
         # Get distinct messages pks
         to_user_q = Q(sent_to_users=self.user)
         if hasattr(self.user, "groups") and hasattr(self.user.groups, "all") and callable(self.user.groups.all):
-            q = q | Q(sent_to_group__group_id__in=list(self.user.groups.all()))
+            to_user_q = to_user_q | Q(sent_to_groups__pk__in=list(self.user.groups.values_list("pk", flat=True)))
         message_pks = Message.objects.filter(to_user_q).values("id").distinct()
 
-        # Get messages with pk in messsage_pks
+        # Get messages with pk in message_pks
         messages = Message.objects.filter(pk__in=message_pks)
 
         if archived:
@@ -188,14 +224,33 @@ class Inbox(models.Model):
 
         return messages
 
-    def _all(self, set_last_checked: bool = True) -> QuerySet:
+    def _get_messages_lazy(self, set_last_checked: bool = True, archived: bool = False, q: Q = Q()) -> SimpleLazyObject:
+        """
+        Lazy version of _get_messages
+        """
+
+        @wraps(self._get_messages)
+        def f():
+            return self._get_messages(set_last_checked, archived, q)
+
+        return SimpleLazyObject(f)
+
+    def _all(self, set_last_checked: bool = True) -> SimpleLazyObject:
         """
         Returns all messages in inbox except archived
         """
-        return self._get_messages(set_last_checked)
+        return self._get_messages_lazy(set_last_checked)
 
-    def _read(self, set_last_checked: bool = True) -> QuerySet:
-        return self._get_messages(set_last_checked, q=Q(pk__in=self.read.values("pk")))
+    def _read(self, set_last_checked: bool = True) -> SimpleLazyObject:
+        return self._get_messages_lazy(set_last_checked,
+                                       q=Q(pk__in=self.user.read_messages.values("pk")))
 
-    def _unread(self, set_last_checked: bool = True) -> QuerySet:
-        return self._get_messages(set_last_checked, q=~Q(pk__in=self.read.values("pk")))
+    def _unread(self, set_last_checked: bool = True) -> SimpleLazyObject:
+        return self._get_messages_lazy(set_last_checked,
+                                       q=~Q(pk__in=self.user.read_messages.values("pk")))
+
+    def _new(self, set_last_checked: bool = True) -> SimpleLazyObject:
+        """
+        Returns all messages in inbox except archived
+        """
+        return self._get_messages_lazy(set_last_checked, q=Q(created__gt=self.last_checked))
