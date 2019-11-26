@@ -91,14 +91,14 @@ class BaseTests:
         storage.add(constants.INFO, gettext_lazy('lazy text'))
         storage.update(response)
 
-        storing = self.stored_messages_count(storage, response)
+        storing = self.stored_notifications_count(storage, response)
         self.assertEqual(storing, 1)
 
     def test_no_update(self):
         storage = self.get_storage()
         response = self.get_response()
         storage.update(response)
-        storing = self.stored_messages_count(storage, response)
+        storing = self.stored_notifications_count(storage, response)
         self.assertEqual(storing, 0)
 
     def test_add_update(self):
@@ -109,7 +109,7 @@ class BaseTests:
         storage.add(constants.INFO, 'Test text 1', extra='tag')
         storage.update(response)
 
-        storing = self.stored_messages_count(storage, response)
+        storing = self.stored_notifications_count(storage, response)
         self.assertEqual(storing, 2)
 
     def test_existing_add_read_update(self):
@@ -120,7 +120,7 @@ class BaseTests:
         list(storage)   # Simulates a read
         storage.update(response)
 
-        storing = self.stored_messages_count(storage, response)
+        storing = self.stored_notifications_count(storage, response)
         self.assertEqual(storing, 0)
 
     def test_existing_read_add_update(self):
@@ -131,7 +131,7 @@ class BaseTests:
         storage.add(constants.INFO, 'Test text 3')
         storage.update(response)
 
-        storing = self.stored_messages_count(storage, response)
+        storing = self.stored_notifications_count(storage, response)
         self.assertEqual(storing, 1)
 
     @override_settings(DMM_MINIMAL_LEVEL=0)
@@ -246,7 +246,7 @@ class BaseTests:
             self.assertRedirects(response, show_url)
             self.assertNotIn('messages', response.context)
 
-    def stored_messages_count(self, storage, response):
+    def stored_notifications_count(self, storage, response):
         """
         Return the number of messages being stored after a
         ``notification_storage.update()`` call.

@@ -34,7 +34,7 @@ class SessionStorage(BaseNotificationStorage):
         Store a list of notifications to the request's session.
         """
         if notifications:
-            self.request.session[self.session_key] = self.serialize_notifications(messages)
+            self.request.session[self.session_key] = self.serialize_notifications(notifications)
         else:
             self.request.session.pop(self.session_key, None)
         return []

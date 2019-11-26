@@ -46,7 +46,7 @@ def stored_cookie_messages_count(storage, response):
 class CookieTests(BaseTests, SimpleTestCase):
     storage_class = CookieStorage
 
-    def stored_messages_count(self, storage, response):
+    def stored_notifications_count(self, storage, response):
         return stored_cookie_messages_count(storage, response)
 
     def test_get(self):
@@ -113,7 +113,7 @@ class CookieTests(BaseTests, SimpleTestCase):
             storage.add(constants.INFO, str(i) * msg_size)
         unstored_messages = storage.update(response)
 
-        cookie_storing = self.stored_messages_count(storage, response)
+        cookie_storing = self.stored_notifications_count(storage, response)
         self.assertEqual(cookie_storing, 4)
 
         self.assertEqual(len(unstored_messages), 1)
