@@ -25,7 +25,7 @@ def set_cookie_data(storage, messages, invalid=False, encode_empty=False):
         del storage._loaded_data
 
 
-def stored_cookie_messages_count(storage, response):
+def stored_cookie_notifications_count(storage, response):
     """
     Return an integer containing the number of messages stored.
     """
@@ -47,7 +47,7 @@ class CookieTests(BaseTests, SimpleTestCase):
     storage_class = CookieStorage
 
     def stored_notifications_count(self, storage, response):
-        return stored_cookie_messages_count(storage, response)
+        return stored_cookie_notifications_count(storage, response)
 
     def test_get(self):
         storage = self.storage_class(self.get_request())

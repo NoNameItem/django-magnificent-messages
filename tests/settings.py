@@ -22,6 +22,7 @@ ROOT_URLCONF = "tests.urls"
 
 INSTALLED_APPS = [
     "django.contrib.auth",
+    "django.contrib.sessions",
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django_magnificent_messages.apps.DjangoMagnificentMessagesConfig",
@@ -34,4 +35,3 @@ MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     "django_magnificent_messages.middleware.MessageMiddleware",
 )
-
