@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django_magnificent_messages import constants
 from django_magnificent_messages.storage.base import Message
-from tests.utils import override_settings_config
 
 
 class MessageTestCase(TestCase):
