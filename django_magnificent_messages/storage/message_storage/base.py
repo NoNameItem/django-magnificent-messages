@@ -36,6 +36,9 @@ class MessageIterator:
         except IndexError:
             raise StopIteration()
 
+    def __len__(self):
+        return len(self._stored_messages)
+
 
 class BaseMessageStorage(BaseStorage):
     """
@@ -99,6 +102,10 @@ class BaseMessageStorage(BaseStorage):
     def new_count(self) -> int:
         return self._get_new_messages_count()
 
+    @property
+    def new_count_update_last_checked(self) -> int:
+        return self._get_new_messages_count_update_last_check()
+
     def send_message(self,
                      level: int,
                      text: str,
@@ -107,7 +114,7 @@ class BaseMessageStorage(BaseStorage):
                      to_users_pk: Iterable = tuple(),
                      to_groups_pk: Iterable = tuple(),
                      user_generated: bool = True,
-                     reply_to_pk=None) -> None:
+                     reply_to_pk=None) -> StoredMessage:
         """
         Send message.
 
@@ -116,15 +123,14 @@ class BaseMessageStorage(BaseStorage):
         """
         message = self._construct(level, text, subject, extra)
         if message is not None and (to_users_pk or to_groups_pk):
-            if user_generated \
-                and hasattr(self.request, 'user') \
-                and getattr(self.request.user, "is_authenticated", False):
+            if user_generated and hasattr(self.request, 'user') and getattr(self.request.user,
+                                                                            "is_authenticated", False):
                 author_pk = getattr(self.request.user, "pk")
             else:
                 author_pk = None
 
-            self._save_message(message, author_pk=author_pk, to_users_pk=to_users_pk, to_groups_pk=to_groups_pk,
-                               user_generated=user_generated, reply_to_pk=reply_to_pk)
+            return self._save_message(message, author_pk=author_pk, to_users_pk=to_users_pk, to_groups_pk=to_groups_pk,
+                                      user_generated=user_generated, reply_to_pk=reply_to_pk)
 
     # Storage internal methods to implement in subclass
 
@@ -177,8 +183,8 @@ class BaseMessageStorage(BaseStorage):
                       author_pk,
                       to_users_pk: Iterable,
                       to_groups_pk: Iterable,
-                      user_generated: bool,
-                      reply_to_pk) -> None:
+                      user_generated: bool = True,
+                      reply_to_pk=None) -> StoredMessage:
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _save_message() method')
 
@@ -189,3 +195,8 @@ class BaseMessageStorage(BaseStorage):
         This method must be implemented by a subclass.
         """
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _stored_to_message() method')
+
+    def _get_new_messages_count_update_last_check(self):
+        """This method must be implemented by a subclass."""
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _'
+                                  'get_new_messages_count_update_last_check() method')

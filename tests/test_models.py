@@ -1,61 +1,15 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from django_magnificent_messages import constants
 from django_magnificent_messages.models import Message, MessageNotSentToUserError, Inbox
-
-
-class TestMessagesMixin:
-    """
-    For message testing next situation is used:
-        * There are 3 users (Alice, Bob and Carol) and two groups (group1 and group2)
-        * Alice is in group1, Bob is in group1 and group2, Carol is not in any group
-        * Alice sent message "Alice message to Bob" to Bob
-        * Bob sent message "Bob message go group1" to group1
-        * Carol sent two messages "Read message" and "Archived message" to alice and group2
-        * Bob and Alice marked "Read message" as read
-        * Bob and Alice archived "Archived message"
-
-    This is situation with messages at the start of every test.
-
-    All users checked theirs inboxes very long time ago
-    """
-
-    def create_test_messages(self):
-        group1 = Group.objects.create(name="group1")
-        group2 = Group.objects.create(name="group2")
-
-        self.alice = User.objects.create_user('alice', 'lennon@thebeatles.com', 'password')
-        self.bob = User.objects.create_user('bob', 'lennon@thebeatles.com', 'password')
-        self.carol = User.objects.create_user('carol', 'lennon@thebeatles.com', 'password')
-
-        self.alice.groups.set([group1])
-        self.bob.groups.set([group1, group2])
-
-        self.alice_message_to_bob = Message.objects.create(pk=1, level=constants.INFO, text="Alice message to Bob",
-                                                           author=self.alice, user_generated=True)
-        self.alice_message_to_bob.sent_to_users.add(self.bob)
-
-        self.bob_message_to_group1 = Message.objects.create(pk=2, level=constants.INFO, text="Bob message go group1",
-                                                            author=self.bob, user_generated=True)
-        self.bob_message_to_group1.sent_to_groups.add(group1)
-
-        self.read_message = Message.objects.create(pk=3, level=constants.INFO, text="Read message", author=self.carol,
-                                                   user_generated=True)
-        self.read_message.sent_to_users.add(self.alice)
-        self.read_message.sent_to_groups.add(group2)
-        self.read_message.read_by.set([self.alice, self.bob])
-
-        self.archived_message = Message.objects.create(pk=4, level=constants.INFO, text="Archived message",
-                                                       author=self.carol, user_generated=True)
-        self.archived_message.sent_to_users.add(self.alice)
-        self.archived_message.sent_to_groups.add(group2)
-        self.archived_message.archived_by.set([self.alice, self.bob])
+from tests.utils import TestMessagesMixin
 
 
 class MessageModelTestCase(TestMessagesMixin, TestCase):
     def setUp(self) -> None:
+        self.create_test_users()
         self.create_test_messages()
 
     def test_mark_read_to_you(self):
@@ -120,6 +74,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         """
         Create messages and get user inboxes
         """
+        self.create_test_users()
         self.create_test_messages()
         self.alice_inbox, _ = Inbox.objects.get_or_create(user=self.alice, main=True)
         self.bob_inbox, _ = Inbox.objects.get_or_create(user=self.bob, main=True)

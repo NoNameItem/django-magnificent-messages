@@ -30,7 +30,7 @@ class Message(TimeStampedModel):
     """
     level = models.IntegerField()
 
-    subject = models.TextField(blank=True)
+    subject = models.TextField(blank=True, null=True)
     text = models.TextField()
     extra = JSONField(blank=True, null=True)
 

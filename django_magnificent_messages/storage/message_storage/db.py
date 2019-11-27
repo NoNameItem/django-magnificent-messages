@@ -18,7 +18,7 @@ class DatabaseStorage(BaseMessageStorage):
         super(DatabaseStorage, self).__init__(request, *args, **kwargs)
         try:
             if request.user.is_authenticated:
-                self._inbox = models.Inbox.objects.get_or_create(user=request.user, main=True)
+                self._inbox, _ = models.Inbox.objects.get_or_create(user=request.user, main=True)
             else:
                 self._inbox = None
         except AttributeError:
@@ -56,8 +56,11 @@ class DatabaseStorage(BaseMessageStorage):
     def _get_new_messages_count(self) -> int:
         return getattr(self._inbox, "new_count", 0)
 
+    def _get_new_messages_count_update_last_check(self):
+        return getattr(self._inbox, "new_count_update_last_checked", 0)
+
     def _save_message(self, message: Message, author_pk, to_users_pk: Iterable, to_groups_pk: Iterable,
-                      user_generated: bool, reply_to_pk) -> None:
+                      user_generated: bool, reply_to_pk) -> StoredMessage:
         try:
             reply_to = models.Message.objects.get(pk=reply_to_pk)
         except models.Message.DoesNotExist:
@@ -68,12 +71,14 @@ class DatabaseStorage(BaseMessageStorage):
             author_id=author_pk,
             subject=message.subject,
             extra=message.extra,
-            reply_to=reply_to
+            reply_to=reply_to,
+            user_generated=user_generated
         )
         new_message.save()
         new_message.sent_to_users.set(to_users_pk)
-        new_message.sent_to_group.set(to_groups_pk)
+        new_message.sent_to_groups.set(to_groups_pk)
         message_sent.send(sender=self.__class__, message=new_message)
+        return self._stored_to_message(new_message)
 
     def _stored_to_message(self, stored: models.Message) -> StoredMessage:
         """
