@@ -163,6 +163,10 @@ class Inbox(models.Model):
     def new_count(self):
         return self._new(set_last_checked=False).count()
 
+    @property
+    def new_count_update_last_checked(self):
+        return self._new().count()
+
     class Meta:
         db_table = "mm_inbox"
         unique_together = (

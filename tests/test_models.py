@@ -175,6 +175,9 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         self.assertEqual(2, self.alice_inbox.new_count)
         self.assertEqual(3, self.bob_inbox.new_count)
         self.assertEqual(0, self.carol_inbox.new_count)
+        self.assertEqual(2, self.alice_inbox.new_count_update_last_checked)
+        self.assertEqual(3, self.bob_inbox.new_count_update_last_checked)
+        self.assertEqual(0, self.carol_inbox.new_count_update_last_checked)
 
     def test_alice_all(self):
         """
@@ -373,12 +376,12 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         """
         old_last_check = self.alice_inbox.last_checked
         # Assigment
-        messages = self.alice_inbox.new
-        self.assertEqual(self.alice_inbox.last_checked, old_last_check)
+        messages = self.alice_inbox.new_count_update_last_checked
+        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
 
     def test_count_last_check(self):
         """
-        All counts should not change inbox.last_checked
+        All counts other then new_count_update_last_checked should not change inbox.last_checked
         """
         old_last_check = self.alice_inbox.last_checked
         c = self.alice_inbox.all_count
@@ -392,6 +395,13 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         c = self.alice_inbox.new_count
         self.assertEqual(old_last_check, self.alice_inbox.last_checked)
 
+    def test_new_count_update_last_checked(self):
+        """
+        new_count_update_last_checked should change inbox.last_checked
+        """
+        old_last_check = self.alice_inbox.last_checked
+        c = self.alice_inbox.all_count
+        self.assertEqual(old_last_check, self.alice_inbox.last_checked)
 
     def test_new_after_check(self):
         """
