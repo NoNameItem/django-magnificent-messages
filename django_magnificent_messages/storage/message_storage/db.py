@@ -2,7 +2,7 @@ from typing import Iterable
 
 from django_magnificent_messages import models
 from django_magnificent_messages.storage.base import StorageError, Message
-from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage
+from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage, StoredMessage
 from django_magnificent_messages.storage.message_storage.db_signals import message_sent
 
 
@@ -26,19 +26,19 @@ class DatabaseStorage(BaseMessageStorage):
         except models.Inbox.MultipleObjectsReturned:
             raise StorageError(self.__class__.__name__, "User `{0}` has more then one main inbox".format(request.user))
 
-    def _get_all_messages_iter(self) -> Iterable:
+    def _get_all_messages(self) -> Iterable:
         return getattr(self._inbox, "all", [])
 
-    def _get_read_messages_iter(self) -> Iterable:
+    def _get_read_messages(self) -> Iterable:
         return getattr(self._inbox, "read", [])
 
-    def _get_unread_messages_iter(self) -> Iterable:
+    def _get_unread_messages(self) -> Iterable:
         return getattr(self._inbox, "unread", [])
 
-    def _get_archived_messages_iter(self) -> Iterable:
+    def _get_archived_messages(self) -> Iterable:
         return getattr(self._inbox, "archived", [])
 
-    def _get_new_messages_iter(self) -> Iterable:
+    def _get_new_messages(self) -> Iterable:
         return getattr(self._inbox, "new", [])
 
     def _get_all_messages_count(self) -> int:
@@ -74,3 +74,17 @@ class DatabaseStorage(BaseMessageStorage):
         new_message.sent_to_users.set(to_users_pk)
         new_message.sent_to_group.set(to_groups_pk)
         message_sent.send(sender=self.__class__, message=new_message)
+
+    def _stored_to_message(self, stored: models.Message) -> StoredMessage:
+        """
+        Convert message from internal storage representation to StoredMessage instance
+        """
+        return StoredMessage(
+            stored.level,
+            stored.text,
+            stored.subject,
+            extra=stored.extra,
+            author=stored.author,
+            user_generated=stored.user_generated,
+            reply_to=stored.reply_to
+        )

@@ -192,7 +192,6 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         self.assertNotIn(self.alice_message_to_bob, messages)
         self.assertNotIn(self.archived_message, messages)
 
-
     def test_alice_read(self):
         """
         Alice has 1 read message ("Read message")

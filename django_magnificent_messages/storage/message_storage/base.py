@@ -1,6 +1,40 @@
-from typing import Iterable
+from typing import Iterable, Union, Iterator, Callable
 
 from django_magnificent_messages.storage.base import BaseStorage, Message
+
+
+class StoredMessage(Message):
+    def __init__(self,
+                 level: int,
+                 text: str,
+                 subject: str = None,
+                 extra=None,
+                 **kwargs):
+        super().__init__(level, text, subject, extra)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
+class MessageIterator:
+    def __init__(self, stored_messages, convert_function: Callable, fetch_all: bool = True):
+        self._stored_messages = stored_messages
+        self._convert_function = convert_function
+        self._fetch_all = fetch_all
+        self._index = 0
+
+    def __iter__(self):
+        if self._fetch_all:
+            self._stored_messages = list(self._stored_messages)
+        self._index = 0
+        return self
+
+    def __next__(self):
+        try:
+            value = self._convert_function(self._stored_messages[self._index])
+            self._index += 1
+            return value
+        except IndexError:
+            raise StopIteration()
 
 
 class BaseMessageStorage(BaseStorage):
@@ -27,23 +61,23 @@ class BaseMessageStorage(BaseStorage):
 
     @property
     def all(self) -> Iterable:
-        return self._get_all_messages_iter()
+        return MessageIterator(self._get_all_messages(), self._stored_to_message)
 
     @property
     def read(self) -> Iterable:
-        return self._get_read_messages_iter()
+        return MessageIterator(self._get_read_messages(), self._stored_to_message)
 
     @property
     def unread(self) -> Iterable:
-        return self._get_unread_messages_iter()
+        return MessageIterator(self._get_unread_messages(), self._stored_to_message)
 
     @property
     def archived(self) -> Iterable:
-        return self._get_archived_messages_iter()
+        return MessageIterator(self._get_archived_messages(), self._stored_to_message)
 
     @property
     def new(self) -> Iterable:
-        return self._get_new_messages_iter()
+        return MessageIterator(self._get_new_messages(), self._stored_to_message)
 
     @property
     def all_count(self) -> int:
@@ -83,37 +117,38 @@ class BaseMessageStorage(BaseStorage):
         message = self._construct(level, text, subject, extra)
         if message is not None and (to_users_pk or to_groups_pk):
             if user_generated \
-               and hasattr(self.request, 'user') \
-               and getattr(self.request.user, "is_authenticated", False):
-                sender_pk = getattr(self.request.user, "pk")
+                and hasattr(self.request, 'user') \
+                and getattr(self.request.user, "is_authenticated", False):
+                author_pk = getattr(self.request.user, "pk")
             else:
-                sender_pk = None
+                author_pk = None
 
-            self._save_message(message, to_users_pk, to_groups_pk, user_generated, reply_to_pk)
+            self._save_message(message, author_pk=author_pk, to_users_pk=to_users_pk, to_groups_pk=to_groups_pk,
+                               user_generated=user_generated, reply_to_pk=reply_to_pk)
 
     # Storage internal methods to implement in subclass
 
-    def _get_all_messages_iter(self) -> Iterable:
+    def _get_all_messages(self) -> Iterable:
         """This method must be implemented by a subclass."""
-        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_all_messages_iter() method')
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_all_messages() method')
 
-    def _get_read_messages_iter(self) -> Iterable:
+    def _get_read_messages(self) -> Iterable:
         """This method must be implemented by a subclass."""
-        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_read_messages_iter() method')
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_read_messages() method')
 
-    def _get_unread_messages_iter(self) -> Iterable:
+    def _get_unread_messages(self) -> Iterable:
         """This method must be implemented by a subclass."""
-        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_unread_messages_iter() method')
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_unread_messages() method')
 
-    def _get_archived_messages_iter(self) -> Iterable:
+    def _get_archived_messages(self) -> Iterable:
         """This method must be implemented by a subclass."""
         raise NotImplementedError(
-            'subclasses of BaseMessageStorage must provide a _get_archived_messages_iter() method'
+            'subclasses of BaseMessageStorage must provide a _get_archived_messages() method'
         )
 
-    def _get_new_messages_iter(self) -> Iterable:
+    def _get_new_messages(self) -> Iterable:
         """This method must be implemented by a subclass."""
-        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_new_messages_iter() method')
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_new_messages() method')
 
     def _get_all_messages_count(self) -> int:
         """This method must be implemented by a subclass."""
@@ -146,3 +181,11 @@ class BaseMessageStorage(BaseStorage):
                       reply_to_pk) -> None:
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _save_message() method')
+
+    def _stored_to_message(self, stored) -> StoredMessage:
+        """
+        Convert message from internal storage representation to StoredMessage instance
+
+        This method must be implemented by a subclass.
+        """
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _stored_to_message() method')
