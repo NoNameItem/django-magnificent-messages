@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.functional import SimpleLazyObject
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 
 from model_utils.models import TimeStampedModel
 
@@ -235,7 +236,8 @@ class Inbox(models.Model):
 
         return messages
 
-    def _get_messages_lazy(self, set_last_checked: bool = True, archived: bool = False, q: Q = Q()) -> SimpleLazyObject:
+    def _get_messages_lazy(self, set_last_checked: bool = True, archived: bool = False,
+                           q: Q = Q()) -> SimpleLazyObject:
         """
         Lazy version of _get_messages
         """

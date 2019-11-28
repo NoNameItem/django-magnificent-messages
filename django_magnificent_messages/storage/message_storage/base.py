@@ -1,4 +1,4 @@
-from typing import Iterable, Union, Iterator, Callable
+from typing import Iterable, Callable
 
 from django_magnificent_messages.storage.base import BaseStorage, Message
 

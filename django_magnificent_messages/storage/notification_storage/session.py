@@ -15,10 +15,11 @@ class SessionStorage(BaseNotificationStorage):
     session_key = '_notifications'
 
     def __init__(self, request, *args, **kwargs):
-        assert hasattr(request, 'session'), "The session-based temporary "\
+        if not hasattr(request, 'session'):
+            raise AssertionError("The session-based temporary "\
             "notification storage requires session middleware to be installed, "\
             "and come before the message middleware in the "\
-            "MIDDLEWARE%s list." % ("_CLASSES" if settings.MIDDLEWARE is None else "")
+            "MIDDLEWARE%s list." % ("_CLASSES" if settings.MIDDLEWARE is None else ""))
         super().__init__(request, *args, **kwargs)
 
     def _get(self, *args, **kwargs):

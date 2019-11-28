@@ -1,7 +1,7 @@
 """
 Getting application settings from settings.py
 """
-from django.conf import settings
+from django.conf import settings  # noqa
 
 from appconf import AppConf
 

@@ -29,7 +29,7 @@ class Message:
 
     def __eq__(self, other):
         return isinstance(other, Message) and self.level == other.level and \
-               self.text == other.text and self.subject == other.subject and self.extra == other.extra
+            self.text == other.text and self.subject == other.subject and self.extra == other.extra
 
     def __str__(self):
         return str("[{0.subject}] {0.text}".format(self))
@@ -118,4 +118,3 @@ class BaseStorage:
             self._level = int(value)
 
     level = property(_get_level, _set_level, _set_level)
-

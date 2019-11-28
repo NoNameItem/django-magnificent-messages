@@ -1,4 +1,4 @@
-from . import *
+from . import *  # noqa
 
 
 def django_magnificent_messages(request):
