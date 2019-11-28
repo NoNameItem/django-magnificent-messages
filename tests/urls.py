@@ -60,7 +60,7 @@ def messages_add(request, message_type):
 
 @never_cache
 def system_messages_add(request, message_type):
-    data = json.loads(request.body)
+    data = json.loads(request.body.decode('utf8'))
     for msg in data['messages']:
         getattr(django_magnificent_messages.system_messages, message_type)(request, **msg)
     return HttpResponseRedirect(reverse('messages_show', args=(data.get('show_new', 0),)))
