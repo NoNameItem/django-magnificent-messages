@@ -86,7 +86,10 @@ class CookieTests(BaseTests, SimpleTestCase):
         storage.update(response)
         self.assertEqual(response.cookies['notifications'].value, '')
         self.assertEqual(response.cookies['notifications']['domain'], '.example.com')
-        self.assertEqual(response.cookies['notifications']['expires'], 'Thu, 01 Jan 1970 00:00:00 GMT')
+        if django.VERSION[:2] == (2, 0):
+            self.assertEqual(response.cookies['notifications']['expires'], 'Thu, 01-Jan-1970 00:00:00 GMT')
+        else:
+            self.assertEqual(response.cookies['notifications']['expires'], 'Thu, 01 Jan 1970 00:00:00 GMT')
 
     def test_get_bad_cookie(self):
         request = self.get_request()
