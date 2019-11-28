@@ -137,9 +137,9 @@ class BaseTests:
             add_url = reverse('add-notification', args=(level,))
             response = self.client.post(add_url, data, follow=True)
             self.assertRedirects(response, show_url)
-            self.assertIn('notifications', response.context)
+            self.assertIn('dmm', response.context)
             notifications = [Message(self.levels[level.upper()], msg) for msg in data['notifications']]
-            self.assertEqual(list(response.context['notifications']['all']), notifications)
+            self.assertEqual(list(response.context['dmm']['notifications']['all']), notifications)
             for msg in data['notifications']:
                 self.assertContains(response, msg)
 
@@ -153,7 +153,7 @@ class BaseTests:
             add_url = reverse('notifications_add_template_response', args=(level.lower(),))
             response = self.client.post(add_url, data, follow=True)
             self.assertRedirects(response, show_url)
-            self.assertIn('notifications', response.context)
+            self.assertIn('dmm', response.context)
             for msg in data['messages']:
                 self.assertContains(response, msg)
 
@@ -177,8 +177,8 @@ class BaseTests:
             add_url = reverse('add-notification', args=(level,))
             self.client.post(add_url, data)
         response = self.client.get(show_url)
-        self.assertIn('notifications', response.context)
-        self.assertEqual(list(response.context['notifications']['all']), notifications)
+        self.assertIn('dmm', response.context)
+        self.assertEqual(list(response.context['dmm']['notifications']['all']), notifications)
         for msg in data['notifications']:
             self.assertContains(response, msg)
 
@@ -233,7 +233,7 @@ class BaseTests:
             add_url = reverse('add-notification', args=(level,))
             response = self.client.post(add_url, data, follow=True)
             self.assertRedirects(response, show_url)
-            self.assertNotIn('messages', response.context)
+            self.assertNotIn('dmm', response.context)
 
     def stored_notifications_count(self, storage, response):
         """

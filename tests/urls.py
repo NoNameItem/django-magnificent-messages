@@ -10,9 +10,9 @@ from django.urls import path, re_path, reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic.edit import FormView
 
-NOTIFICATIONS_TEMPLATE = """{% if messages %}
+NOTIFICATIONS_TEMPLATE = """{% if dmm %}
 <ul class="notifications">
-    {% for notification in notifications.all %}
+    {% for notification in dmm.notifications.all %}
     <li{% if notification.level_tag %} class="{{ notification.level_tag }}"{% endif %}>
         {{ notification.text }}
     </li>
@@ -22,14 +22,14 @@ NOTIFICATIONS_TEMPLATE = """{% if messages %}
 """
 
 MESSAGES_TEMPLATE = """
-all: {{ messages.all_count }}<br>
-read: {{ messages.read_count }}<br>
-unread: {{ messages.unread_count }}<br>
-archived: {{ messages.archived_count }}<br>
-new: {{ messages.new_count }}<br>
+all: {{ dmm.messages.all_count }}<br>
+read: {{ dmm.messages.read_count }}<br>
+unread: {{ dmm.messages.unread_count }}<br>
+archived: {{ dmm.messages.archived_count }}<br>
+new: {{ dmm.messages.new_count }}<br>
 {% if show_new == 1 %}
 <ul>
-{% for msg in messages.new %}
+{% for msg in dmm.messages.new %}
 <li>{{ msg.text }}</li>
 {% endfor %}
 </ul>
