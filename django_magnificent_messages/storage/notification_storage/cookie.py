@@ -1,5 +1,6 @@
 import json
 
+from django import VERSION
 from django.conf import settings
 
 from .base import BaseNotificationStorage
@@ -78,13 +79,21 @@ class CookieStorage(BaseNotificationStorage):
         store, or delete the cookie.
         """
         if encoded_data:
-            response.set_cookie(
-                self.cookie_name, encoded_data,
-                domain=settings.SESSION_COOKIE_DOMAIN,
-                secure=settings.SESSION_COOKIE_SECURE or None,
-                httponly=settings.SESSION_COOKIE_HTTPONLY or None,
-                samesite=settings.SESSION_COOKIE_SAMESITE,
-            )
+            if VERSION[:2] == (2, 0):
+                response.set_cookie(
+                    self.cookie_name, encoded_data,
+                    domain=settings.SESSION_COOKIE_DOMAIN,
+                    secure=settings.SESSION_COOKIE_SECURE or None,
+                    httponly=settings.SESSION_COOKIE_HTTPONLY or None,
+                )
+            else:
+                response.set_cookie(
+                    self.cookie_name, encoded_data,
+                    domain=settings.SESSION_COOKIE_DOMAIN,
+                    secure=settings.SESSION_COOKIE_SECURE or None,
+                    httponly=settings.SESSION_COOKIE_HTTPONLY or None,
+                    samesite=settings.SESSION_COOKIE_SAMESITE,
+                )
         else:
             response.delete_cookie(self.cookie_name, domain=settings.SESSION_COOKIE_DOMAIN)
 
