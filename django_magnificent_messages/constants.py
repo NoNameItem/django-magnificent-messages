@@ -3,6 +3,8 @@ Constants and defaults values
 """
 import datetime
 
+import django
+
 SECONDARY = 10
 PRIMARY = 20
 INFO = 30
@@ -34,4 +36,4 @@ MESSAGE_DB_MODEL = "django_magnificent_messages.Message"
 DEFAULT_NOTIFICATION_STORAGE = "django_magnificent_messages.storage.notification_storage.session.SessionStorage"
 DEFAULT_MESSAGE_STORAGE = "django_magnificent_messages.storage.message_storage.db.DatabaseStorage"
 
-MIN_DATETIME = datetime.datetime.min
+MIN_DATETIME = django.utils.timezone.make_aware(datetime.datetime(1900, 1, 1))
