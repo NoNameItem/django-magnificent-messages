@@ -1,5 +1,7 @@
 import json
 
+import django
+
 from django_magnificent_messages import constants
 from django_magnificent_messages.storage.base import Message
 from django_magnificent_messages.storage.notification_storage.cookie import (
@@ -72,7 +74,8 @@ class CookieTests(BaseTests, SimpleTestCase):
         self.assertEqual(response.cookies['notifications']['expires'], '')
         self.assertIs(response.cookies['notifications']['secure'], True)
         self.assertIs(response.cookies['notifications']['httponly'], True)
-        self.assertEqual(response.cookies['notifications']['samesite'], 'Strict')
+        if django.VERSION[:2] != (2, 0):
+            self.assertEqual(response.cookies['notifications']['samesite'], 'Strict')
 
         # Test deletion of the cookie (storing with an empty value) after the messages have been consumed
         storage = self.get_storage()
