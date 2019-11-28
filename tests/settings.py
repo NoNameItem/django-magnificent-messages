@@ -8,7 +8,6 @@ import django
 DEBUG = True
 USE_TZ = False
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "8ah(*5$ds!4-284y0shckwgn%uun&5!up#@yz&k(5xs+)2bqlw"
 
@@ -34,5 +33,18 @@ SITE_ID = 1
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     "django_magnificent_messages.middleware.MessageMiddleware",
 )
+
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': (
+            'django.contrib.auth.context_processors.auth',
+            'django_magnificent_messages.context_processors.django_magnificent_messages',
+        ),
+    },
+}]

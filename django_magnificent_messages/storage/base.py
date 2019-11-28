@@ -3,8 +3,8 @@ from django_magnificent_messages.conf import settings
 
 class Message:
     """
-    Represent an actual text that can be stored in any of the supported
-    notification_storage classes and rendered in a view or template.
+    Represent an actual message that can be stored in any of the supported
+    storage classes and rendered in a view or template.
     """
 
     def __init__(self,
@@ -20,7 +20,7 @@ class Message:
 
     def prepare(self):
         """
-        Prepare the text for serialization by forcing the ``subject`` and ``text``
+        Prepare the message for serialization by forcing the ``subject`` and ``raw_text``
         to str in case they are lazy translations.
         """
         if self.subject is not None:
@@ -60,7 +60,7 @@ class StorageError(Exception):
 
 class BaseStorage:
     """
-    This is the base text/notification storage.
+    This is the base message/notification storage.
 
     Class contains methods used by both notification and message storages. You should use this class directly only
     if you creating another type of messages in your system. Otherwise you should subclass ``BaseNotificationStorage``
@@ -80,15 +80,15 @@ class BaseStorage:
 
     def _construct(self, level, text, subject, extra=None):
         """
-        Construct text/notification.
+        Construct message/notification.
 
-        If text/notification body (``text`` arg) is empty or text/notification level lesser then storage
+        If message/notification body (``text`` arg) is empty or message/notification level lesser then storage
         minimal level, ``None`` will be returned. Use this method in subclasses to check and construct Message object
-        before processing new text/notification.
+        before processing new message/notification.
         """
         if not text:
             return None
-        # Check that the text/notification level is not less than the recording level.
+        # Check that the message/notification level is not less than the recording level.
         level = int(level)
         if level < self.level:
             return None

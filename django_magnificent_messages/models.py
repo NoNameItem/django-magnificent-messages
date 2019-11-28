@@ -26,12 +26,12 @@ class Message(TimeStampedModel):
     """
     Main model for app.
 
-    Stores one record for every text in system
+    Stores one record for every message in system
     """
     level = models.IntegerField()
 
     subject = models.TextField(blank=True, null=True)
-    text = models.TextField()
+    raw_text = models.TextField()
     extra = JSONField(blank=True, null=True)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="outbox")
@@ -46,14 +46,21 @@ class Message(TimeStampedModel):
                                      db_table="mm_message_read_by_user")
     archived_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="archived_messages",
                                          db_table="mm_message_archived_by_user")
+    html_safe = models.BooleanField(default=False)
+
+    @property
+    def text(self):
+        if self.html_safe:
+            return mark_safe(self.raw_text)
+        return self.raw_text
 
     class Meta:
         db_table = "mm_message"
         default_permissions = ()
         permissions = (
-            ("send_message", "Send text"),
-            ("view_all_message", "View all text"),
-            ("delete_any_message", "Delete any text"),
+            ("send_message", "Send message"),
+            ("view_all_message", "View all messages"),
+            ("delete_any_message", "Delete any messages"),
         )
         ordering = ("created",)
 
@@ -196,7 +203,7 @@ class Inbox(models.Model):
 
         Uses two queries to avoid duplication of messages sent to user directly and through the groups, or through
         two and more groups. Can't use distinct() because Oracle does not support distinct on NCLOB fields and
-        Message model has such fields (subject, text and extra)
+        Message model has such fields (subject, raw_text and extra)
 
         **You should not use this method directly. Use properties instead**
 

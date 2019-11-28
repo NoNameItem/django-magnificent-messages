@@ -9,6 +9,7 @@ __all__ = (
     'all', 'all_count', 'read', 'read_count', 'unread', 'unread_count', 'archived', 'archived_count', 'new',
     'new_count',
     'add', 'secondary', 'primary', 'info', 'success', 'warning', 'error',
+    'MessageFailure'
 )
 
 
@@ -17,13 +18,15 @@ class MessageFailure(Exception):
 
 
 def add(request: HttpRequest,
-        level: int,
-        text: str,
+        level: int = constants.SECONDARY,
+        text: str = None,
         subject: str = None,
         extra: object = None,
         to_users_pk: Iterable = tuple(),
         to_groups_pk: Iterable = tuple(),
-        fail_silently: bool = False) -> None:
+        fail_silently: bool = False,
+        html_safe: bool = False,
+        reply_to_pk=None) -> None:
     """
     Attempt to notifications_add a notification to the request using the 'django_magnificent_messages' app.
     """
@@ -32,16 +35,17 @@ def add(request: HttpRequest,
     except AttributeError:
         if not isinstance(request, HttpRequest):
             raise TypeError(
-                "add_message() argument must be an HttpRequest object, not "
+                "add() argument must be an HttpRequest object, not "
                 "'%s'." % request.__class__.__name__
             )
         if not fail_silently:
             raise MessageFailure(
-                'You cannot notifications_add messages without installing '
+                'You cannot add messages without installing '
                 'django_magnificent_messages.middleware.MessageMiddleware'
             )
     else:
-        return backend.send_message(level, text, subject, extra, to_users_pk, to_groups_pk, True)
+        return backend.send_message(level, text, subject, extra, to_users_pk, to_groups_pk, True, html_safe,
+                                    reply_to_pk)
 
 
 def all(request: HttpRequest):  # noqa
@@ -144,8 +148,18 @@ def new_count(request: HttpRequest):
         return 0
 
 
+def new_count_update_last_checked(request: HttpRequest):
+    """
+    Return archived messages count on the request if exist, otherwise return 0
+    """
+    try:
+        return request.dmm_backend.new_messages_count
+    except AttributeError:
+        return 0
+
+
 def secondary(request: HttpRequest,
-              text: str,
+              text: str = None,
               subject: str = None,
               extra: object = None,
               to_users_pk: Iterable = tuple(),

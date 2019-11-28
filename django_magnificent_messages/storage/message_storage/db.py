@@ -60,19 +60,20 @@ class DatabaseStorage(BaseMessageStorage):
         return getattr(self._inbox, "new_count_update_last_checked", 0)
 
     def _save_message(self, message: Message, author_pk, to_users_pk: Iterable, to_groups_pk: Iterable,
-                      user_generated: bool, reply_to_pk) -> StoredMessage:
+                      user_generated: bool = True, html_safe: bool = False, reply_to_pk=None) -> StoredMessage:
         try:
             reply_to = models.Message.objects.get(pk=reply_to_pk)
         except models.Message.DoesNotExist:
             reply_to = None
         new_message = models.Message(
             level=message.level,
-            text=message.text,
+            raw_text=message.text,
             author_id=author_pk,
             subject=message.subject,
             extra=message.extra,
             reply_to=reply_to,
-            user_generated=user_generated
+            user_generated=user_generated,
+            html_safe=html_safe
         )
         new_message.save()
         new_message.sent_to_users.set(to_users_pk)
@@ -88,6 +89,7 @@ class DatabaseStorage(BaseMessageStorage):
             stored.level,
             stored.text,
             stored.subject,
+            raw_text=stored.raw_text,
             extra=stored.extra,
             author=stored.author,
             user_generated=stored.user_generated,

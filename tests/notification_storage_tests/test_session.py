@@ -38,7 +38,7 @@ class SessionTests(BaseTests, TestCase):
     def test_no_session(self):
         msg = (
             'The session-based temporary notification storage requires session middleware to be installed, and come '
-            'before the text middleware in the MIDDLEWARE list.'
+            'before the message middleware in the MIDDLEWARE list.'
         )
         with self.assertRaisesMessage(AssertionError, msg):
             self.storage_class(HttpRequest())

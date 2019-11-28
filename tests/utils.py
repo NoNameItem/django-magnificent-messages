@@ -21,21 +21,21 @@ class TestMessagesMixin:
     """
 
     def create_test_messages(self):
-        self.alice_message_to_bob = Message.objects.create(pk=1, level=constants.INFO, text="Alice message to Bob",
+        self.alice_message_to_bob = Message.objects.create(pk=1, level=constants.INFO, raw_text="Alice message to Bob",
                                                            author=self.alice, user_generated=True)
         self.alice_message_to_bob.sent_to_users.add(self.bob)
 
-        self.bob_message_to_group1 = Message.objects.create(pk=2, level=constants.INFO, text="Bob message go group1",
+        self.bob_message_to_group1 = Message.objects.create(pk=2, level=constants.INFO, raw_text="Bob message go group1",
                                                             author=self.bob, user_generated=True)
         self.bob_message_to_group1.sent_to_groups.add(self.group1)
 
-        self.read_message = Message.objects.create(pk=3, level=constants.INFO, text="Read message", author=self.carol,
+        self.read_message = Message.objects.create(pk=3, level=constants.INFO, raw_text="Read message", author=self.carol,
                                                    user_generated=True)
         self.read_message.sent_to_users.add(self.alice)
         self.read_message.sent_to_groups.add(self.group2)
         self.read_message.read_by.set([self.alice, self.bob])
 
-        self.archived_message = Message.objects.create(pk=4, level=constants.INFO, text="Archived message",
+        self.archived_message = Message.objects.create(pk=4, level=constants.INFO, raw_text="Archived message",
                                                        author=self.carol, user_generated=True)
         self.archived_message.sent_to_users.add(self.alice)
         self.archived_message.sent_to_groups.add(self.group2)

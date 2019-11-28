@@ -54,7 +54,6 @@ class CookieTests(BaseTests, SimpleTestCase):
         # Set initial data.
         example_messages = ['test', 'me']
         set_cookie_data(storage, example_messages)
-        # The text contains what's expected.
         self.assertEqual(list(storage), example_messages)
 
     @override_settings(SESSION_COOKIE_SAMESITE='Strict')
@@ -92,7 +91,6 @@ class CookieTests(BaseTests, SimpleTestCase):
         # Set initial (invalid) data.
         example_messages = ['test', 'me']
         set_cookie_data(storage, example_messages, invalid=True)
-        # The text actually contains what we expect.
         self.assertEqual(list(storage), [])
 
     def test_max_cookie_length(self):

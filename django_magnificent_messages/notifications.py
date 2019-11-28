@@ -23,7 +23,7 @@ def add(request: HttpRequest, level: int, text: str, subject: str = None, extra=
     except AttributeError:
         if not isinstance(request, HttpRequest):
             raise TypeError(
-                "add_message() argument must be an HttpRequest object, not "
+                "add() argument must be an HttpRequest object, not "
                 "'%s'." % request.__class__.__name__
             )
         if not fail_silently:

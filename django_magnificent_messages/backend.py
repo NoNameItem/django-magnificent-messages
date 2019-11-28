@@ -73,6 +73,11 @@ class MessageBackend:
         """Get new messages count"""
         return self._message_storage.new_count
 
+    @property
+    def new_messages_count_update_last_checked(self) -> int:
+        """Get new messages count"""
+        return self._message_storage.new_count_update_last_checked
+
     def get_level(self) -> int:
         """Get minimal stored message/notification level"""
         return min(self._notification_storage.level, self._message_storage.level)
@@ -94,10 +99,11 @@ class MessageBackend:
                      to_users_pk: Iterable = tuple(),
                      to_groups_pk: Iterable = tuple(),
                      user_generated: bool = True,
+                     html_safe: bool = False,
                      reply_to_pk=None) -> None:
         """Add new message with specified level"""
         self._message_storage.send_message(level, text, subject, extra, to_users_pk, to_groups_pk, user_generated,
-                                           reply_to_pk)
+                                           html_safe, reply_to_pk)
 
     def update(self, response):
         return self._notification_storage.update(response)

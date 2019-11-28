@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 import django_magnificent_messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -9,12 +11,27 @@ from django.views.decorators.cache import never_cache
 from django.views.generic.edit import FormView
 
 NOTIFICATIONS_TEMPLATE = """{% if messages %}
-<ul class="messages">
-    {% for text in notifications.all %}
-    <li{% if text.level_tag %} class="{{ text.level_tag }}"{% endif %}>
-        {{ text.text }}
+<ul class="notifications">
+    {% for notification in notifications.all %}
+    <li{% if notification.level_tag %} class="{{ notification.level_tag }}"{% endif %}>
+        {{ notification.text }}
     </li>
     {% endfor %}
+</ul>
+{% endif %}
+"""
+
+MESSAGES_TEMPLATE = """
+all: {{ messages.all_count }}<br>
+read: {{ messages.read_count }}<br>
+unread: {{ messages.unread_count }}<br>
+archived: {{ messages.archived_count }}<br>
+new: {{ messages.new_count }}<br>
+{% if show_new == 1 %}
+<ul>
+{% for msg in messages.new %}
+<li>{{ msg.text }}</li>
+{% endfor %}
 </ul>
 {% endif %}
 """
@@ -34,6 +51,22 @@ def notifications_add(request, message_type):
 
 
 @never_cache
+def messages_add(request, message_type):
+    data = json.loads(request.body)
+    for msg in data['messages']:
+        getattr(django_magnificent_messages.messages, message_type)(request, **msg)
+    return HttpResponseRedirect(reverse('messages_show', args=(data.get('show_new', 0),)))
+
+
+@never_cache
+def system_messages_add(request, message_type):
+    data = json.loads(request.body)
+    for msg in data['messages']:
+        getattr(django_magnificent_messages.system_messages, message_type)(request, **msg)
+    return HttpResponseRedirect(reverse('messages_show', args=(data.get('show_new', 0),)))
+
+
+@never_cache
 def notifications_add_template_response(request, message_type):
     for msg in request.POST.getlist('messages'):
         getattr(django_magnificent_messages.notifications, message_type)(request, msg)
@@ -47,6 +80,12 @@ def notifications_show(request):
 
 
 @never_cache
+def messages_show(request, show_new):
+    template = engines['django'].from_string(MESSAGES_TEMPLATE)
+    return HttpResponse(template.render(request=request, context={"show_new": show_new}))
+
+
+@never_cache
 def show_template_response_notification(request):
     template = engines['django'].from_string(NOTIFICATIONS_TEMPLATE)
     return TemplateResponse(request, template)
@@ -55,6 +94,12 @@ def show_template_response_notification(request):
 urlpatterns = [
     re_path('^notifications_add/(secondary|primary|info|success|warning|error)/$', notifications_add,
             name='add-notification'),
+    path('notifications_show/', notifications_show, name='show_notification'),
+    re_path('^messages_add/(secondary|primary|info|success|warning|error)/$', messages_add,
+            name='add-message'),
+    re_path('^system_messages_add/(secondary|primary|info|success|warning|error)/$', system_messages_add,
+            name='add-system-message'),
+    path('messages_show/<int:show_new>', messages_show, name="messages_show"),
     path('notifications_show/', notifications_show, name='show_notification'),
     re_path(
         '^template_response/notifications_add/(secondary|primary|info|success|warning|error)/$',

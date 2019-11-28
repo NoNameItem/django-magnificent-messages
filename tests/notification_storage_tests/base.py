@@ -36,17 +36,6 @@ class BaseTests:
 
     def setUp(self):
         self.settings_override = override_settings(
-            TEMPLATES=[{
-                'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                'DIRS': [],
-                'APP_DIRS': True,
-                'OPTIONS': {
-                    'context_processors': (
-                        'django.contrib.auth.context_processors.auth',
-                        'django_magnificent_messages.context_processors.django_magnificent_messages',
-                    ),
-                },
-            }],
             ROOT_URLCONF='tests.urls',
             MESSAGE_TAGS={},
             DMM_NOTIFICATION_STORAGE='%s.%s' % (self.storage_class.__module__, self.storage_class.__name__),
@@ -137,7 +126,7 @@ class BaseTests:
     @override_settings(DMM_MINIMAL_LEVEL=0)
     def test_full_request_response_cycle(self):
         """
-        With the text middleware enabled, messages are properly stored and
+        With the message middleware enabled, messages are properly stored and
         retrieved across the full request/redirect/response cycle.
         """
         data = {

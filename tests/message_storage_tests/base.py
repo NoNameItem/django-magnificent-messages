@@ -1,5 +1,8 @@
+import json
+
 from django.contrib.auth.models import AnonymousUser, Group, User
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
+from django.urls import reverse
 
 from django_magnificent_messages import constants, models
 from django_magnificent_messages.models import Message
@@ -76,8 +79,8 @@ class BaseMessageStorageTestCases:
             self.assertSequenceEqual([self.group1, self.group2], message.sent_to_groups.all())
 
         def test_convert(self):
-            message = Message.objects.create(pk=1, level=constants.INFO, text="Alice message to Bob",
-                                   author=self.alice, user_generated=True)
+            message = Message.objects.create(pk=1, level=constants.INFO, raw_text="Alice message to Bob",
+                                             author=self.alice, user_generated=True)
             message.sent_to_users.add(self.bob)
             converted = StoredMessage(
                 constants.INFO,
@@ -96,6 +99,186 @@ class BaseMessageStorageTestCases:
             self.assertEqual(self.alice, stored.author)
             self.assertTrue(stored.user_generated)
             self.assertIsNone(stored.reply_to)
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_full_cycle_no_show_new(self):
+            """
+            With the message middleware enabled, messages are properly stored and
+            retrieved across the full request/redirect/response cycle.
+            """
+            data = {
+                "messages": [
+                    {
+                        'text': 'Test text %d' % x,
+                        'to_users_pk': [self.alice.pk]
+                    } for x in range(5)],
+                'show_new': 0
+            }
+            show_url = reverse('messages_show', args=(0,))
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                # Clear messages
+                models.Message.objects.all().delete()
+                add_url = reverse('add-message', args=(level,))
+                logged = self.client.login(username='alice', password='password')
+                response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
+                self.assertRedirects(response, show_url)
+                self.assertIn('messages', response.context)
+                self.assertEqual(5, response.context['messages']['all_count'])
+                self.assertEqual(5, response.context['messages']['unread_count'])
+                self.assertEqual(5, response.context['messages']['new_count'])
+                messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                          msg['text'], subject=None, extra=None) for msg in data['messages']]
+                self.assertEqual(list(response.context['messages']['all']), messages)
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_full_cycle_show_new(self):
+            """
+            With the message middleware enabled, messages are properly stored and
+            retrieved across the full request/redirect/response cycle.
+            """
+            data = {
+                "messages": [
+                    {
+                        'text': 'Test text %d' % x,
+                        'to_users_pk': [self.alice.pk]
+                    } for x in range(5)],
+                'show_new': 1
+            }
+            show_url = reverse('messages_show', args=(1,))
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                # Clear messages
+                models.Message.objects.all().delete()
+                add_url = reverse('add-message', args=(level,))
+                logged = self.client.login(username='alice', password='password')
+                response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
+                self.assertRedirects(response, show_url)
+                self.assertIn('messages', response.context)
+                self.assertEqual(5, response.context['messages']['all_count'])
+                self.assertEqual(5, response.context['messages']['unread_count'])
+                self.assertEqual(5, response.context['messages']['new_count'])
+                messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                          msg['text'], subject=None, extra=None) for msg in data['messages']]
+                self.assertEqual(list(response.context['messages']['all']), messages)
+                for msg in data["messages"]:
+                    self.assertContains(response, msg['text'])
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_full_cycle_multiple_post_show_new(self):
+            show_url = reverse('messages_show', args=(1,))
+            logged = self.client.login(username='alice', password='password')
+            messages = []
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                for i in range(5):
+                    data = {
+                        "messages": [
+                            {
+                                'text': 'Test %s %d' % (level, i),
+                                'to_users_pk': [self.alice.pk]
+                            }],
+                        'show_new': 1
+                    }
+                    messages.append(StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                                  'Test %s %d' % (level, i), subject=None, extra=None))
+                    add_url = reverse('add-message', args=(level,))
+                    response = self.client.post(add_url, json.dumps(data), content_type="application/json")
+            response = self.client.get(show_url)
+            self.assertIn('messages', response.context)
+            self.assertEqual(len(messages), response.context['messages']['all_count'])
+            self.assertEqual(len(messages), response.context['messages']['unread_count'])
+            self.assertEqual(len(messages), response.context['messages']['new_count'])
+            self.assertEqual(list(response.context['messages']['all']), messages)
+            for msg in messages:
+                self.assertContains(response, msg.text)
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_system_full_cycle_no_show_new(self):
+            """
+            With the message middleware enabled, messages are properly stored and
+            retrieved across the full request/redirect/response cycle.
+            """
+            data = {
+                "messages": [
+                    {
+                        'text': 'Test text %d' % x,
+                        'to_users_pk': [self.alice.pk]
+                    } for x in range(5)],
+                'show_new': 0
+            }
+            show_url = reverse('messages_show', args=(0,))
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                # Clear messages
+                models.Message.objects.all().delete()
+                add_url = reverse('add-system-message', args=(level,))
+                logged = self.client.login(username='alice', password='password')
+                response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
+                self.assertRedirects(response, show_url)
+                self.assertIn('messages', response.context)
+                self.assertEqual(5, response.context['messages']['all_count'])
+                self.assertEqual(5, response.context['messages']['unread_count'])
+                self.assertEqual(5, response.context['messages']['new_count'])
+                messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                          msg['text'], subject=None, extra=None) for msg in data['messages']]
+                self.assertEqual(list(response.context['messages']['all']), messages)
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_system_full_cycle_show_new(self):
+            """
+            With the message middleware enabled, messages are properly stored and
+            retrieved across the full request/redirect/response cycle.
+            """
+            data = {
+                "messages": [
+                    {
+                        'text': 'Test text %d' % x,
+                        'to_users_pk': [self.alice.pk]
+                    } for x in range(5)],
+                'show_new': 1
+            }
+            show_url = reverse('messages_show', args=(1,))
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                # Clear messages
+                models.Message.objects.all().delete()
+                add_url = reverse('add-system-message', args=(level,))
+                logged = self.client.login(username='alice', password='password')
+                response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
+                self.assertRedirects(response, show_url)
+                self.assertIn('messages', response.context)
+                self.assertEqual(5, response.context['messages']['all_count'])
+                self.assertEqual(5, response.context['messages']['unread_count'])
+                self.assertEqual(5, response.context['messages']['new_count'])
+                messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                          msg['text'], subject=None, extra=None) for msg in data['messages']]
+                self.assertEqual(list(response.context['messages']['all']), messages)
+                for msg in data["messages"]:
+                    self.assertContains(response, msg['text'])
+
+        @override_settings(DMM_MINIMAL_LEVEL=0)
+        def test_system_full_cycle_multiple_post_show_new(self):
+            show_url = reverse('messages_show', args=(1,))
+            logged = self.client.login(username='alice', password='password')
+            messages = []
+            for level in ('secondary', 'primary', 'info', 'success', 'warning', 'error'):
+                for i in range(5):
+                    data = {
+                        "messages": [
+                            {
+                                'text': 'Test %s %d' % (level, i),
+                                'to_users_pk': [self.alice.pk]
+                            }],
+                        'show_new': 1
+                    }
+                    messages.append(StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
+                                                  'Test %s %d' % (level, i), subject=None, extra=None))
+                    add_url = reverse('add-system-message', args=(level,))
+                    response = self.client.post(add_url, json.dumps(data), content_type="application/json")
+            response = self.client.get(show_url)
+            self.assertIn('messages', response.context)
+            self.assertEqual(len(messages), response.context['messages']['all_count'])
+            self.assertEqual(len(messages), response.context['messages']['unread_count'])
+            self.assertEqual(len(messages), response.context['messages']['new_count'])
+            self.assertEqual(list(response.context['messages']['all']), messages)
+            for msg in messages:
+                self.assertContains(response, msg.text)
 
     class ExistingMessagesTestCase(TestMessagesMixin, TestStoragesMixin, TestCase):
         """
@@ -318,7 +501,7 @@ class BaseMessageStorageTestCases:
             self.assertEqual(0, len(list(self.alice_storage.new)))
 
             # New message
-            new_message = Message.objects.create(level=constants.INFO, text="Alice message to Bob",
+            new_message = Message.objects.create(level=constants.INFO, raw_text="Alice message to Bob",
                                                  author=self.bob, user_generated=True)
             new_message.sent_to_users.add(self.alice)
 
@@ -337,7 +520,7 @@ class BaseMessageStorageTestCases:
 
             messages = []
             for i in range(5):
-                new_message = Message.objects.create(level=constants.INFO, text="Message {0}".format(i + 1),
+                new_message = Message.objects.create(level=constants.INFO, raw_text="Message {0}".format(i + 1),
                                                      author=self.bob, user_generated=True)
                 new_message.sent_to_users.add(self.alice)
                 messages.append(new_message)

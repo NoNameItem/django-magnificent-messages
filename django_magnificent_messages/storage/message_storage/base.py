@@ -114,6 +114,7 @@ class BaseMessageStorage(BaseStorage):
                      to_users_pk: Iterable = tuple(),
                      to_groups_pk: Iterable = tuple(),
                      user_generated: bool = True,
+                     html_safe: bool = False,
                      reply_to_pk=None) -> StoredMessage:
         """
         Send message.
@@ -130,7 +131,7 @@ class BaseMessageStorage(BaseStorage):
                 author_pk = None
 
             return self._save_message(message, author_pk=author_pk, to_users_pk=to_users_pk, to_groups_pk=to_groups_pk,
-                                      user_generated=user_generated, reply_to_pk=reply_to_pk)
+                                      user_generated=user_generated, reply_to_pk=reply_to_pk, html_safe=html_safe)
 
     # Storage internal methods to implement in subclass
 
@@ -184,6 +185,7 @@ class BaseMessageStorage(BaseStorage):
                       to_users_pk: Iterable,
                       to_groups_pk: Iterable,
                       user_generated: bool = True,
+                      html_safe: bool = False,
                       reply_to_pk=None) -> StoredMessage:
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _save_message() method')
