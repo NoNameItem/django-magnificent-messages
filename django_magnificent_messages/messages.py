@@ -164,9 +164,12 @@ def secondary(request: HttpRequest,
               extra: object = None,
               to_users_pk: Iterable = tuple(),
               to_groups_pk: Iterable = tuple(),
-              fail_silently: bool = False) -> None:
+              fail_silently: bool = False,
+              html_safe: bool = False,
+              reply_to_pk=None) -> None:
     """Add a message with the ``SECONDARY`` level."""
-    add(request, constants.SECONDARY, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.SECONDARY, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
+        reply_to_pk)
 
 
 def primary(request: HttpRequest,
@@ -175,9 +178,12 @@ def primary(request: HttpRequest,
             extra: object = None,
             to_users_pk: Iterable = tuple(),
             to_groups_pk: Iterable = tuple(),
-            fail_silently: bool = False) -> None:
+            fail_silently: bool = False,
+            html_safe: bool = False,
+            reply_to_pk=None) -> None:
     """Add a message with the ``PRIMARY`` level."""
-    add(request, constants.PRIMARY, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.PRIMARY, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
+        reply_to_pk)
 
 
 def info(request: HttpRequest,
@@ -186,9 +192,11 @@ def info(request: HttpRequest,
          extra: object = None,
          to_users_pk: Iterable = tuple(),
          to_groups_pk: Iterable = tuple(),
-         fail_silently: bool = False) -> None:
+         fail_silently: bool = False,
+         html_safe: bool = False,
+         reply_to_pk=None) -> None:
     """Add a message with the ``INFO`` level."""
-    add(request, constants.INFO, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.INFO, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe, reply_to_pk)
 
 
 def success(request: HttpRequest,
@@ -197,9 +205,12 @@ def success(request: HttpRequest,
             extra: object = None,
             to_users_pk: Iterable = tuple(),
             to_groups_pk: Iterable = tuple(),
-            fail_silently: bool = False) -> None:
+            fail_silently: bool = False,
+            html_safe: bool = False,
+            reply_to_pk=None) -> None:
     """Add a message with the ``SUCCESS`` level."""
-    add(request, constants.SUCCESS, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.SUCCESS, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
+        reply_to_pk)
 
 
 def warning(request: HttpRequest,
@@ -208,9 +219,12 @@ def warning(request: HttpRequest,
             extra: object = None,
             to_users_pk: Iterable = tuple(),
             to_groups_pk: Iterable = tuple(),
-            fail_silently: bool = False) -> None:
+            fail_silently: bool = False,
+            html_safe: bool = False,
+            reply_to_pk=None) -> None:
     """Add a message with the ``WARNING`` level."""
-    add(request, constants.WARNING, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.WARNING, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
+        reply_to_pk)
 
 
 def error(request: HttpRequest,
@@ -219,6 +233,9 @@ def error(request: HttpRequest,
           extra: object = None,
           to_users_pk: Iterable = tuple(),
           to_groups_pk: Iterable = tuple(),
-          fail_silently: bool = False) -> None:
+          fail_silently: bool = False,
+          html_safe: bool = False,
+          reply_to_pk=None) -> None:
     """Add a message with the ``ERROR`` level."""
-    add(request, constants.ERROR, text, subject, extra, to_users_pk, to_groups_pk, fail_silently=fail_silently)
+    add(request, constants.ERROR, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
+        reply_to_pk)
