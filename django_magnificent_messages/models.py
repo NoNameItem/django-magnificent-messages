@@ -63,7 +63,7 @@ class Message(TimeStampedModel):
             ("view_all_message", "View all messages"),
             ("delete_any_message", "Delete any messages"),
         )
-        ordering = ("created",)
+        ordering = ("-created",)
 
     def _is_user_in_recipients(self, user):
         if user in self.sent_to_users.all():

@@ -94,5 +94,7 @@ class DatabaseStorage(BaseMessageStorage):
             author=stored.author,
             user_generated=stored.user_generated,
             reply_to=stored.reply_to,
-            pk=stored.pk
+            pk=stored.pk,
+            created=stored.created,
+            modified=stored.modified
         )

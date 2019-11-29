@@ -128,6 +128,7 @@ class BaseMessageStorageTestCases:
                 self.assertEqual(5, response.context['dmm']['messages']['new_count'])
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
+                messages.reverse()
                 self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
 
         @override_settings(DMM_MINIMAL_LEVEL=0)
@@ -158,6 +159,7 @@ class BaseMessageStorageTestCases:
                 self.assertEqual(5, response.context['dmm']['messages']['new_count'])
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
+                messages.reverse()
                 self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
                 for msg in data["messages"]:
                     self.assertContains(response, msg['text'])
@@ -186,6 +188,7 @@ class BaseMessageStorageTestCases:
             self.assertEqual(len(messages), response.context['dmm']['messages']['all_count'])
             self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count'])
             self.assertEqual(len(messages), response.context['dmm']['messages']['new_count'])
+            messages.reverse()
             self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
             for msg in messages:
                 self.assertContains(response, msg.text)
@@ -218,6 +221,7 @@ class BaseMessageStorageTestCases:
                 self.assertEqual(5, response.context['dmm']['messages']['new_count'])
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
+                messages.reverse()
                 self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
 
         @override_settings(DMM_MINIMAL_LEVEL=0)
@@ -248,6 +252,7 @@ class BaseMessageStorageTestCases:
                 self.assertEqual(5, response.context['dmm']['messages']['new_count'])
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
+                messages.reverse()
                 self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
                 for msg in data["messages"]:
                     self.assertContains(response, msg['text'])
@@ -276,6 +281,7 @@ class BaseMessageStorageTestCases:
             self.assertEqual(len(messages), response.context['dmm']['messages']['all_count'])
             self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count'])
             self.assertEqual(len(messages), response.context['dmm']['messages']['new_count'])
+            messages.reverse()
             self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
             for msg in messages:
                 self.assertContains(response, msg.text)

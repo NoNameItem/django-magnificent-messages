@@ -396,6 +396,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
             self.assertEqual(i + 1, self.alice_inbox.new_count)
 
         self.assertEqual(5, self.alice_inbox.new_count)
+        messages.reverse()
         self.assertSequenceEqual(messages, self.alice_inbox.new)
 
         self.assertEqual(0, self.alice_inbox.new_count)
