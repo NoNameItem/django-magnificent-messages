@@ -3,7 +3,6 @@ branch = true
 source = django_magnificent_messages
 
 [report]
-show_missing = True
 exclude_lines =
     pragma: no cover
     def __repr__

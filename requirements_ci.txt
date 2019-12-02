@@ -10,3 +10,4 @@ twine
 pbr
 django-appconf
 gitchangelog
+pystache
