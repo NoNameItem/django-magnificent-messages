@@ -18,7 +18,7 @@ DEFAULT_TAGS = {
     INFO: 'info',
     SUCCESS: 'success',
     WARNING: 'warning',
-    ERROR: 'error',
+    ERROR: 'danger',
 }
 
 DEFAULT_LEVELS = {
