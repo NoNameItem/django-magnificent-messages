@@ -82,11 +82,13 @@ jobs:
             tags: true
   allow_failures:
     - python: "nightly"
-      env: DJANGO="Django==2.0"
+      env: DJANGO="Django>=2.0,<2.1"
     - python: "nightly"
-      env: DJANGO="Django==2.1"
+      env: DJANGO="Django>=2.1,<2.2"
     - python: "nightly"
-      env: DJANGO="Django==2.2"
+      env: DJANGO="Django>=2.2,<3.0"
+    - python: nightly
+      env: DJANGO="Django>=3.0,<3.1"
     - python: "nightly"
       env: DJANGO="--pre Django"
     - python: "3.6"
