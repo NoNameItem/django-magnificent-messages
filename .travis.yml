@@ -9,7 +9,6 @@ addons:
       - slapd
 
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
@@ -90,15 +89,12 @@ jobs:
       env: DJANGO="Django==2.2"
     - python: "nightly"
       env: DJANGO="--pre Django"
-    - python: "3.5"
-      env: DJANGO="--pre Django"
     - python: "3.6"
       env: DJANGO="--pre Django"
     - python: "3.7"
       env: DJANGO="--pre Django"
     - python: "3.8"
       env: DJANGO="--pre Django"
-
 
 notifications:
   email:
