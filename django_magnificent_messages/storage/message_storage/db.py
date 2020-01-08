@@ -14,14 +14,23 @@ class DatabaseStorage(BaseMessageStorage):
     storing last check date
     """
 
+    def _get_sent_messages(self) -> Iterable:
+        pass
+
+    def _get_sent_messages_count(self) -> int:
+        pass
+
     def __init__(self, request, *args, **kwargs):
         super(DatabaseStorage, self).__init__(request, *args, **kwargs)
         try:
             if request.user.is_authenticated:
+                self.user = request.user
                 self._inbox, _ = models.Inbox.objects.get_or_create(user=request.user, main=True)
             else:
+                self.user = None
                 self._inbox = None
         except AttributeError:
+            self.user = None
             self._inbox = None
         except models.Inbox.MultipleObjectsReturned:
             raise StorageError(self.__class__.__name__, "User `{0}` has more then one main inbox".format(request.user))

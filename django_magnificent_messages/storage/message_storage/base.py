@@ -83,6 +83,10 @@ class BaseMessageStorage(BaseStorage):
         return MessageIterator(self._get_new_messages(), self._stored_to_message)
 
     @property
+    def sent(self) -> Iterable:
+        return MessageIterator(self._get_sent_messages(), self._stored_to_message)
+
+    @property
     def all_count(self) -> int:
         return self._get_all_messages_count()
 
@@ -105,6 +109,10 @@ class BaseMessageStorage(BaseStorage):
     @property
     def new_count_update_last_checked(self) -> int:
         return self._get_new_messages_count_update_last_check()
+
+    @property
+    def sent_count(self) -> int:
+        return self._get_sent_messages_count()
 
     def send_message(self,
                      level: int,
@@ -157,6 +165,10 @@ class BaseMessageStorage(BaseStorage):
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_new_messages() method')
 
+    def _get_sent_messages(self) -> Iterable:
+        """This method must be implemented by a subclass."""
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_sent_messages() method')
+
     def _get_all_messages_count(self) -> int:
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_all_messages_count() method')
@@ -179,6 +191,15 @@ class BaseMessageStorage(BaseStorage):
         """This method must be implemented by a subclass."""
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_new_messages_count() method')
 
+    def _get_new_messages_count_update_last_check(self):
+        """This method must be implemented by a subclass."""
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _'
+                                  'get_new_messages_count_update_last_check() method')
+
+    def _get_sent_messages_count(self) -> int:
+        """This method must be implemented by a subclass."""
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_sent_messages_count() method')
+
     def _save_message(self,
                       message: Message,
                       author_pk,
@@ -197,8 +218,3 @@ class BaseMessageStorage(BaseStorage):
         This method must be implemented by a subclass.
         """
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _stored_to_message() method')
-
-    def _get_new_messages_count_update_last_check(self):
-        """This method must be implemented by a subclass."""
-        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _'
-                                  'get_new_messages_count_update_last_check() method')
