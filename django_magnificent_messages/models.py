@@ -263,7 +263,4 @@ class Inbox(models.Model):
                                        q=~Q(pk__in=self.user.read_messages.values("pk")))
 
     def _new(self, set_last_checked: bool = True) -> SimpleLazyObject:
-        """
-        Returns all messages in inbox except archived
-        """
         return self._get_messages_lazy(set_last_checked, q=Q(created__gt=self.last_checked))

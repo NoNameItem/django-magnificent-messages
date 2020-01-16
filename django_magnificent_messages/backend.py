@@ -107,3 +107,15 @@ class MessageBackend:
 
     def update(self, response):
         return self._notification_storage.update(response)
+
+    def mark_read(self, message_pk):
+        self._message_storage.mark_read(message_pk)
+
+    def mark_unread(self, message_pk):
+        self._message_storage.mark_unread(message_pk)
+
+    def archive(self, message_pk):
+        self._message_storage.archive(message_pk)
+
+    def unarchive(self, message_pk):
+        self._message_storage.unarchive(message_pk)

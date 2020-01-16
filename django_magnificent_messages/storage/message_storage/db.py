@@ -2,7 +2,8 @@ from typing import Iterable
 
 from django_magnificent_messages import models
 from django_magnificent_messages.storage.base import StorageError, Message
-from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage, StoredMessage
+from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage, StoredMessage, \
+    MessageNotFoundError, MultipleMessagesFoundError
 from django_magnificent_messages.storage.message_storage.db_signals import message_sent
 
 
@@ -13,12 +14,6 @@ class DatabaseStorage(BaseMessageStorage):
     Stores messages in database in Message model. Access to user messages provided through Inbox model, which handles
     storing last check date
     """
-
-    def _get_sent_messages(self) -> Iterable:
-        pass
-
-    def _get_sent_messages_count(self) -> int:
-        pass
 
     def __init__(self, request, *args, **kwargs):
         super(DatabaseStorage, self).__init__(request, *args, **kwargs)
@@ -70,10 +65,7 @@ class DatabaseStorage(BaseMessageStorage):
 
     def _save_message(self, message: Message, author_pk, to_users_pk: Iterable, to_groups_pk: Iterable,
                       user_generated: bool = True, html_safe: bool = False, reply_to_pk=None) -> StoredMessage:
-        try:
-            reply_to = models.Message.objects.get(pk=reply_to_pk)
-        except models.Message.DoesNotExist:
-            reply_to = None
+        reply_to = self._get_message(reply_to_pk)
         new_message = models.Message(
             level=message.level,
             raw_text=message.text,
@@ -89,6 +81,18 @@ class DatabaseStorage(BaseMessageStorage):
         new_message.sent_to_groups.set(to_groups_pk)
         message_sent.send(sender=self.__class__, message=new_message)
         return self._stored_to_message(new_message)
+
+    def _get_message(self, message_pk):
+        if message_pk is not None:
+            try:
+                message = models.Message.objects.get(pk=message_pk)
+            except models.Message.DoesNotExist:
+                raise MessageNotFoundError(message_pk)
+            except models.Message.MultipleObjectsReturned:
+                raise MultipleMessagesFoundError(message_pk)
+            return message
+        else:
+            return None
 
     def _stored_to_message(self, stored: models.Message) -> StoredMessage:
         """
@@ -107,3 +111,25 @@ class DatabaseStorage(BaseMessageStorage):
             created=stored.created,
             modified=stored.modified
         )
+
+    def _mark_read(self, message_pk):
+        message = self._get_message(message_pk)
+        message.mark_read(self.user)
+
+    def _mark_unread(self, message_pk):
+        message = self._get_message(message_pk)
+        message.mark_unread(self.user)
+
+    def _archive(self, message_pk):
+        message = self._get_message(message_pk)
+        message.archive(self.user)
+
+    def _unarchive(self, message_pk):
+        message = self._get_message(message_pk)
+        message.unarchive(self.user)
+
+    def _get_sent_messages(self) -> Iterable:
+        pass
+
+    def _get_sent_messages_count(self) -> int:
+        pass

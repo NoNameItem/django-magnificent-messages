@@ -4,6 +4,7 @@ from django.http import HttpRequest
 
 from .backend import MessageBackend
 from . import constants
+from .storage.message_storage.base import MessageError
 
 __all__ = (
     'all', 'all_count', 'read', 'read_count', 'unread', 'unread_count', 'archived', 'archived_count', 'new',
@@ -239,3 +240,91 @@ def error(request: HttpRequest,
     """Add a message with the ``ERROR`` level."""
     add(request, constants.ERROR, text, subject, extra, to_users_pk, to_groups_pk, fail_silently, html_safe,
         reply_to_pk)
+
+
+def mark_read(request: HttpRequest, message_pk, fail_silently=False):
+    try:
+        backend = request.dmm_backend  # type: MessageBackend
+    except AttributeError:
+        if not isinstance(request, HttpRequest):
+            raise TypeError(
+                "add() argument must be an HttpRequest object, not "
+                "'%s'." % request.__class__.__name__
+            )
+        if not fail_silently:
+            raise MessageFailure(
+                'You cannot work with messages without installing '
+                'django_magnificent_messages.middleware.MessageMiddleware'
+            )
+    else:
+        try:
+            backend.mark_read(message_pk)
+        except MessageError:
+            if not fail_silently:
+                raise
+
+
+def mark_unread(request: HttpRequest, message_pk, fail_silently=False):
+    try:
+        backend = request.dmm_backend  # type: MessageBackend
+    except AttributeError:
+        if not isinstance(request, HttpRequest):
+            raise TypeError(
+                "add() argument must be an HttpRequest object, not "
+                "'%s'." % request.__class__.__name__
+            )
+        if not fail_silently:
+            raise MessageFailure(
+                'You cannot work with messages without installing '
+                'django_magnificent_messages.middleware.MessageMiddleware'
+            )
+    else:
+        try:
+            backend.mark_unread(message_pk)
+        except MessageError:
+            if not fail_silently:
+                raise
+
+
+def archive(request: HttpRequest, message_pk, fail_silently=False):
+    try:
+        backend = request.dmm_backend  # type: MessageBackend
+    except AttributeError:
+        if not isinstance(request, HttpRequest):
+            raise TypeError(
+                "add() argument must be an HttpRequest object, not "
+                "'%s'." % request.__class__.__name__
+            )
+        if not fail_silently:
+            raise MessageFailure(
+                'You cannot work with messages without installing '
+                'django_magnificent_messages.middleware.MessageMiddleware'
+            )
+    else:
+        try:
+            backend.archive(message_pk)
+        except MessageError:
+            if not fail_silently:
+                raise
+
+
+def unarchive(request: HttpRequest, message_pk, fail_silently=False):
+    try:
+        backend = request.dmm_backend  # type: MessageBackend
+    except AttributeError:
+        if not isinstance(request, HttpRequest):
+            raise TypeError(
+                "add() argument must be an HttpRequest object, not "
+                "'%s'." % request.__class__.__name__
+            )
+        if not fail_silently:
+            raise MessageFailure(
+                'You cannot work with messages without installing '
+                'django_magnificent_messages.middleware.MessageMiddleware'
+            )
+    else:
+        try:
+            backend.unarchive(message_pk)
+        except MessageError:
+            if not fail_silently:
+                raise

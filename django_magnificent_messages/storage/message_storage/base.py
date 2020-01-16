@@ -3,6 +3,24 @@ from typing import Iterable, Callable
 from django_magnificent_messages.storage.base import BaseStorage, Message
 
 
+class MessageError(Exception):
+    MESSAGE_TEMPLATE = ""
+
+    def __init__(self, message_pk):
+        self.message_pk = message_pk
+
+    def __str__(self):
+        return self.MESSAGE_TEMPLATE.format(message_pk=self.message_pk)
+
+
+class MessageNotFoundError(MessageError):
+    MESSAGE_TEMPLATE = "Message not found in storage for pk `{message_pk}`"
+
+
+class MultipleMessagesFoundError(MessageError):
+    MESSAGE_TEMPLATE = "Multiple messages found in storage for pk `{message_pk}`"
+
+
 class StoredMessage(Message):
     def __init__(self,
                  level: int,
@@ -114,6 +132,9 @@ class BaseMessageStorage(BaseStorage):
     def sent_count(self) -> int:
         return self._get_sent_messages_count()
 
+    def get_message(self, message_pk):
+        return self._stored_to_message(self._get_message(message_pk))
+
     def send_message(self,
                      level: int,
                      text: str,
@@ -140,6 +161,18 @@ class BaseMessageStorage(BaseStorage):
 
             return self._save_message(message, author_pk=author_pk, to_users_pk=to_users_pk, to_groups_pk=to_groups_pk,
                                       user_generated=user_generated, reply_to_pk=reply_to_pk, html_safe=html_safe)
+
+    def mark_read(self, message_pk):
+        self._mark_read(message_pk)
+
+    def mark_unread(self, message_pk):
+        self._mark_unread(message_pk)
+
+    def archive(self, message_pk):
+        self._archive(message_pk)
+
+    def unarchive(self, message_pk):
+        self._unarchive(message_pk)
 
     # Storage internal methods to implement in subclass
 
@@ -218,3 +251,18 @@ class BaseMessageStorage(BaseStorage):
         This method must be implemented by a subclass.
         """
         raise NotImplementedError('subclasses of BaseMessageStorage must provide a _stored_to_message() method')
+
+    def _mark_read(self, message_pk):
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _mark_read() method')
+
+    def _mark_unread(self, message_pk):
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _mark_unread() method')
+
+    def _archive(self, message_pk):
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _archive() method')
+
+    def _unarchive(self, message_pk):
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _unarchive() method')
+
+    def _get_message(self, message_pk):
+        raise NotImplementedError('subclasses of BaseMessageStorage must provide a _get_message() method')
