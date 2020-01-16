@@ -49,7 +49,7 @@ class MessageTestCase(TestCase):
 
     def test_error_level_tag(self):
         m = Message(constants.ERROR, "text", "subj")
-        self.assertEqual("error", m.level_tag)
+        self.assertEqual("danger", m.level_tag)
 
     @override_settings(DMM_LEVEL_TAGS={27: 'custom_level'})
     def test_custom_level_tag(self):

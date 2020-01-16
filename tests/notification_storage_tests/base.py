@@ -324,7 +324,7 @@ class BaseTests:
         storage.level = 0
         add_level_messages(storage)
         tags = [msg.level_tag for msg in storage]
-        self.assertEqual(tags, ['info', '', 'primary', 'secondary',  'warning', 'error', 'success'])
+        self.assertEqual(tags, ['info', '', 'primary', 'secondary',  'warning', 'danger', 'success'])
 
     @override_settings(DMM_LEVEL_TAGS={
         constants.INFO: 'info',
