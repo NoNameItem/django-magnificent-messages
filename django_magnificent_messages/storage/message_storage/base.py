@@ -54,9 +54,6 @@ class MessageIterator:
         except IndexError:
             raise StopIteration()
 
-    def __len__(self):
-        return len(self._stored_messages)
-
 
 class BaseMessageStorage(BaseStorage):
     """
