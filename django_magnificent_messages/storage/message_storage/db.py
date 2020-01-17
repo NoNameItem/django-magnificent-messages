@@ -129,7 +129,13 @@ class DatabaseStorage(BaseMessageStorage):
         message.unarchive(self.user)
 
     def _get_sent_messages(self) -> Iterable:
-        pass
+        if self.user:
+            return self.user.outbox.all()
+        else:
+            return []
 
     def _get_sent_messages_count(self) -> int:
-        pass
+        if self.user:
+            return self.user.outbox.all().count()
+        else:
+            return 0

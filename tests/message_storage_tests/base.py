@@ -378,6 +378,18 @@ class BaseMessageStorageTestCases:
             self.assertEqual(0, self.carol_storage.new_count_update_last_checked)
             self.assertEqual(0, self.anonymous_storage.new_count_update_last_checked)
 
+        def test_sent_count(self):
+            """
+                * Alice has 1 message ("Alice message to Bob", "Read message")
+                * Bob has 1 messages ("Alice message to Bob", "Bob message go group1", "Read message")
+                * Carol has 2 messages ("Read message", "Archived message")
+                * Anonymous user always has no messages
+            """
+            self.assertEqual(1, self.alice_storage.sent_count)
+            self.assertEqual(1, self.bob_storage.sent_count)
+            self.assertEqual(2, self.carol_storage.sent_count)
+            self.assertEqual(0, self.anonymous_storage.sent_count)
+
         def test_alice_all(self):
             """
             Alice has 2 messages - "Bob message go group1", "Read message".
@@ -427,6 +439,14 @@ class BaseMessageStorageTestCases:
             self.assertNotIn(self.alice_message_to_bob, messages)
             self.assertNotIn(self.archived_message, messages)
 
+        def test_alice_sent(self):
+            """
+            Alice sent one message ("Alice message to Bob").
+            """
+            messages = list(self.alice_storage.sent)
+            self.assertEqual(1, len(messages))
+            self.assertIn(self.alice_message_to_bob, messages)
+
         def test_bob_all(self):
             """
             Bob has 3 messages - "Alice message to Bob", "Bob message go group1", "Read message".
@@ -475,6 +495,14 @@ class BaseMessageStorageTestCases:
             self.assertIn(self.alice_message_to_bob, messages)
             self.assertNotIn(self.archived_message, messages)
 
+        def test_bob_sent(self):
+            """
+            Bob sent one message ("Bob message to group1").
+            """
+            messages = list(self.bob_storage.sent)
+            self.assertEqual(1, len(messages))
+            self.assertIn(self.bob_message_to_group1, messages)
+
         def test_carol(self):
             """
             Carol has totally empty inbox
@@ -485,15 +513,25 @@ class BaseMessageStorageTestCases:
             self.assertEqual(0, len(self.carol_storage.archived))
             self.assertEqual(0, len(self.carol_storage.new))
 
+        def test_carol_sent(self):
+            """
+            Bob sent one message ("Bob message to group1").
+            """
+            messages = list(self.carol_storage.sent)
+            self.assertEqual(2, len(messages))
+            self.assertIn(self.read_message, messages)
+            self.assertIn(self.archived_message, messages)
+
         def test_anonymous(self):
             """
-            Anonymous user always has no incoming messages
+            Anonymous user always has no incoming or outcoming messages
             """
             self.assertEqual(0, len(self.anonymous_storage.all))
             self.assertEqual(0, len(self.anonymous_storage.read))
             self.assertEqual(0, len(self.anonymous_storage.unread))
             self.assertEqual(0, len(self.anonymous_storage.archived))
             self.assertEqual(0, len(self.anonymous_storage.new))
+            self.assertEqual(0, len(self.anonymous_storage.sent))
 
         def test_new_after_check(self):
             """

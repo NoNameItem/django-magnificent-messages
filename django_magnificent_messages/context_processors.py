@@ -20,6 +20,8 @@ def django_magnificent_messages(request):
                 'unread_count': messages.unread_count(request),
                 'archived': messages.archived(request),
                 'archived_count': messages.archived_count(request),
+                'sent': messages.sent(request),
+                'sent_count': messages.sent_count(request),
                 'new': messages.new(request),
                 'new_count': messages.new_count(request),
                 'new_count_update_last_checked': messages.new_count_update_last_checked(request),

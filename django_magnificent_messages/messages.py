@@ -141,7 +141,7 @@ def new(request: HttpRequest):
 
 def new_count(request: HttpRequest):
     """
-    Return archived messages count on the request if exist, otherwise return 0
+    Return new messages count on the request if exist, otherwise return 0
     """
     try:
         return request.dmm_backend.new_messages_count
@@ -151,10 +151,30 @@ def new_count(request: HttpRequest):
 
 def new_count_update_last_checked(request: HttpRequest):
     """
-    Return archived messages count on the request if exist, otherwise return 0
+    Return new messages count on the request if exist, otherwise return 0
     """
     try:
         return request.dmm_backend.new_messages_count
+    except AttributeError:
+        return 0
+
+
+def sent(request: HttpRequest):
+    """
+    Return sent messages on the request if it exists, otherwise return an empty list.
+    """
+    try:
+        return request.dmm_backend.sent_messages
+    except AttributeError:
+        return []
+
+
+def sent_count(request: HttpRequest):
+    """
+    Return sent messages count on the request if exist, otherwise return 0
+    """
+    try:
+        return request.dmm_backend.sent_messages_count
     except AttributeError:
         return 0
 

@@ -49,6 +49,11 @@ class MessageBackend:
         return self._message_storage.new
 
     @property
+    def sent_messages(self) -> Iterable:
+        """Get sent messages"""
+        return self._message_storage.sent
+
+    @property
     def all_messages_count(self) -> int:
         """Get all messages count"""
         return self._message_storage.all_count
@@ -72,6 +77,10 @@ class MessageBackend:
     def new_messages_count(self) -> int:
         """Get new messages count"""
         return self._message_storage.new_count
+
+    @property
+    def sent_messages_count(self):
+        return self._message_storage.sent_count
 
     @property
     def new_messages_count_update_last_checked(self) -> int:
