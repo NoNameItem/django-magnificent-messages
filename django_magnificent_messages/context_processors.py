@@ -1,4 +1,5 @@
 from . import *  # noqa
+from functools import partial
 
 
 def django_magnificent_messages(request):
@@ -13,18 +14,18 @@ def django_magnificent_messages(request):
             },
             'messages': {
                 'all': messages.all(request),
-                'all_count': messages.all_count(request),
+                'all_count': partial(messages.all_count, request),
                 'read': messages.read(request),
-                'read_count': messages.read_count(request),
+                'read_count': partial(messages.read_count, request),
                 'unread': messages.unread(request),
-                'unread_count': messages.unread_count(request),
+                'unread_count': partial(messages.unread_count, request),
                 'archived': messages.archived(request),
-                'archived_count': messages.archived_count(request),
+                'archived_count': partial(messages.archived_count, request),
                 'sent': messages.sent(request),
-                'sent_count': messages.sent_count(request),
+                'sent_count': partial(messages.sent_count, request),
                 'new': messages.new(request),
-                'new_count': messages.new_count(request),
-                'new_count_update_last_checked': messages.new_count_update_last_checked(request),
+                'new_count': partial(messages.new_count, request),
+                'new_count_update_last_checked': partial(messages.new_count_update_last_checked, request),
             }
         }
     }
