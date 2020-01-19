@@ -13,17 +13,17 @@ def django_magnificent_messages(request):
                 'count': notifications.count(request),
             },
             'messages': {
-                'all': messages.all(request),
+                'all': partial(messages.all, request),
                 'all_count': partial(messages.all_count, request),
-                'read': messages.read(request),
+                'read': partial(messages.read, request),
                 'read_count': partial(messages.read_count, request),
-                'unread': messages.unread(request),
+                'unread': partial(messages.unread, request),
                 'unread_count': partial(messages.unread_count, request),
-                'archived': messages.archived(request),
+                'archived': partial(messages.archived, request),
                 'archived_count': partial(messages.archived_count, request),
-                'sent': messages.sent(request),
+                'sent': partial(messages.sent, request),
                 'sent_count': partial(messages.sent_count, request),
-                'new': messages.new(request),
+                'new': partial(messages.new, request),
                 'new_count': partial(messages.new_count, request),
             }
         }

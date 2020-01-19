@@ -6,7 +6,6 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
 
 from model_utils.models import TimeStampedModel
 
@@ -209,7 +208,7 @@ class Inbox(models.Model):
         # Get distinct messages pks
         to_user_q = Q(sent_to_users=self.user)
         if hasattr(self.user, "groups") and hasattr(self.user.groups, "all") and callable(self.user.groups.all):
-            to_user_q = to_user_q | Q(sent_to_groups__pk__in=list(self.user.groups.values_list("pk", flat=True)))
+            to_user_q = to_user_q | Q(sent_to_groups__pk__in=self.user.groups.values_list("pk", flat=True))
         message_pks = Message.objects.filter(to_user_q).values("id").distinct()
 
         # Get messages with pk in message_pks

@@ -13,18 +13,18 @@ class DatabaseStorageExistingTestCase(BaseMessageStorageTestCases.ExistingMessag
         show_url = reverse('messages_show', args=(1,))
         response = self.client.get(show_url)
         self.assertIn('dmm', response.context)
-        # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+        # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
         # context variables should be executed
         self.assertEqual(0, response.context['dmm']['messages']['all_count']())
         self.assertEqual(0, response.context['dmm']['messages']['read_count']())
         self.assertEqual(0, response.context['dmm']['messages']['unread_count']())
         self.assertEqual(0, response.context['dmm']['messages']['archived_count']())
         self.assertEqual(0, response.context['dmm']['messages']['new_count']())
-        self.assertEqual([], list(response.context['dmm']["messages"]["new"]))
-        self.assertEqual([], list(response.context['dmm']["messages"]["all"]))
-        self.assertEqual([], list(response.context['dmm']["messages"]["read"]))
-        self.assertEqual([], list(response.context['dmm']["messages"]["unread"]))
-        self.assertEqual([], list(response.context['dmm']["messages"]["archived"]))
+        self.assertEqual([], list(response.context['dmm']["messages"]["new"]()))
+        self.assertEqual([], list(response.context['dmm']["messages"]["all"]()))
+        self.assertEqual([], list(response.context['dmm']["messages"]["read"]()))
+        self.assertEqual([], list(response.context['dmm']["messages"]["unread"]()))
+        self.assertEqual([], list(response.context['dmm']["messages"]["archived"]()))
 
     def test_mark_read_self(self):
         self.bob_storage.mark_read(self.alice_message_to_bob.pk)

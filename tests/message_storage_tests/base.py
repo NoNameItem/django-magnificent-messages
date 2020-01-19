@@ -116,7 +116,7 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
                 # context variables should be executed
                 self.assertEqual(5, response.context['dmm']['messages']['all_count']())
                 self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
@@ -124,7 +124,7 @@ class BaseMessageStorageTestCases:
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
-                self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+                self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
 
         @override_settings(DMM_MINIMAL_LEVEL=0)
         def test_full_cycle_show_new(self):
@@ -149,7 +149,7 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
                 # context variables should be executed
                 self.assertEqual(5, response.context['dmm']['messages']['all_count']())
                 self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
@@ -157,7 +157,7 @@ class BaseMessageStorageTestCases:
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
-                self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+                self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
                 for msg in data["messages"]:
                     self.assertContains(response, msg['text'])
 
@@ -182,13 +182,13 @@ class BaseMessageStorageTestCases:
                     response = self.client.post(add_url, json.dumps(data), content_type="application/json")
             response = self.client.get(show_url)
             self.assertIn('dmm', response.context)
-            # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+            # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
             # context variables should be executed
             self.assertEqual(len(messages), response.context['dmm']['messages']['all_count']())
             self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count']())
             self.assertEqual(len(messages), response.context['dmm']['messages']['new_count']())
             messages.reverse()
-            self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+            self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
             for msg in messages:
                 self.assertContains(response, msg.text)
 
@@ -215,7 +215,7 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
                 # context variables should be executed
                 self.assertEqual(5, response.context['dmm']['messages']['all_count']())
                 self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
@@ -223,7 +223,7 @@ class BaseMessageStorageTestCases:
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
-                self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+                self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
 
         @override_settings(DMM_MINIMAL_LEVEL=0)
         def test_system_full_cycle_show_new(self):
@@ -248,7 +248,7 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
                 # context variables should be executed
                 self.assertEqual(5, response.context['dmm']['messages']['all_count']())
                 self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
@@ -256,7 +256,7 @@ class BaseMessageStorageTestCases:
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
-                self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+                self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
                 for msg in data["messages"]:
                     self.assertContains(response, msg['text'])
 
@@ -281,13 +281,13 @@ class BaseMessageStorageTestCases:
                     response = self.client.post(add_url, json.dumps(data), content_type="application/json")
             response = self.client.get(show_url)
             self.assertIn('dmm', response.context)
-            # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+            # Counts passed in context as functions to avoid SQL-query execution until last moment. So in tests this
             # context variables should be executed
             self.assertEqual(len(messages), response.context['dmm']['messages']['all_count']())
             self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count']())
             self.assertEqual(len(messages), response.context['dmm']['messages']['new_count']())
             messages.reverse()
-            self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
+            self.assertEqual(list(response.context['dmm']['messages']['all']()), messages)
             for msg in messages:
                 self.assertContains(response, msg.text)
 

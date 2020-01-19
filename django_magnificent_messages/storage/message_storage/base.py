@@ -2,7 +2,6 @@ from typing import Iterable, Callable
 
 from django.core.paginator import Paginator, Page
 from django.utils.safestring import mark_safe
-from lazy_object_proxy.utils import cached_property
 
 from django_magnificent_messages.storage.base import BaseStorage, Message
 
