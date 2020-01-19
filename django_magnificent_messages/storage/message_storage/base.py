@@ -24,6 +24,10 @@ class MultipleMessagesFoundError(MessageError):
     MESSAGE_TEMPLATE = "Multiple messages found in storage for pk `{message_pk}`"
 
 
+class OperationNotSupprotedError(Exception):
+    pass
+
+
 class StoredMessage(Message):
     def __init__(self,
                  level: int,
@@ -62,12 +66,111 @@ class MessageIterator:
             raise StopIteration()
 
     def filter(self, *args, **kwargs):
-        new_stored_messages = self._stored_messages.filter(*args, **kwargs)
-        return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        if hasattr(self._stored_messages, "filter") and callable(self._stored_messages.filter):
+            new_stored_messages = self._stored_messages.filter(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `filter` operation")
 
     def exclude(self, *args, **kwargs):
-        new_stored_messages = self._stored_messages.exclude(*args, **kwargs)
-        return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        if hasattr(self._stored_messages, "exclude") and callable(self._stored_messages.exclude):
+            new_stored_messages = self._stored_messages.exclude(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `exclude` operation")
+
+    def annotate(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "annotate") and callable(self._stored_messages.annotate):
+            new_stored_messages = self._stored_messages.annotate(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `annotate` operation")
+
+    def order_by(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "order_by") and callable(self._stored_messages.order_by):
+            new_stored_messages = self._stored_messages.order_by(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `order_by` operation")
+
+    def reverse(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "reverse") and callable(self._stored_messages.reverse):
+            new_stored_messages = self._stored_messages.reverse(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `reverse` operation")
+
+    def distinct(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "distinct") and callable(self._stored_messages.distinct):
+            new_stored_messages = self._stored_messages.distinct(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `distinct` operation")
+
+    def values(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "values") and callable(self._stored_messages.values):
+            new_stored_messages = self._stored_messages.values(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `annotate` operation")
+
+    def values_list(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "values_list") and callable(self._stored_messages.values_list):
+            new_stored_messages = self._stored_messages.values_list(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `annotate` operation")
+
+    def dates(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "dates") and callable(self._stored_messages.dates):
+            new_stored_messages = self._stored_messages.dates(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `dates` operation")
+
+    def datetimes(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "datetimes") and callable(self._stored_messages.datetimes):
+            new_stored_messages = self._stored_messages.datetimes(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `datetimes` operation")
+
+    def select_related(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "select_related") and callable(self._stored_messages.select_related):
+            new_stored_messages = self._stored_messages.select_related(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `select_related` "
+                                             "operation")
+
+    def prefetch_related(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "prefetch_related") and callable(self._stored_messages.prefetch_related):
+            new_stored_messages = self._stored_messages.prefetch_related(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `prefetch_related` "
+                                             "operation")
+
+    def defer(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "defer") and callable(self._stored_messages.defer):
+            new_stored_messages = self._stored_messages.defer(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `defer` operation")
+
+    def only(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "only") and callable(self._stored_messages.only):
+            new_stored_messages = self._stored_messages.only(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `only` operation")
+
+    def using(self, *args, **kwargs):
+        if hasattr(self._stored_messages, "using") and callable(self._stored_messages.using):
+            new_stored_messages = self._stored_messages.using(*args, **kwargs)
+            return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+        else:
+            raise OperationNotSupprotedError("`stored_messages` of type {0} does not support `using` operation")
 
     def paginate(self, per_page, orphans=0, allow_empty_first_page=True):
         return MessagePaginator(self._stored_messages, self._convert_function, self._fetch_all, per_page, orphans,
