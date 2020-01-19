@@ -1,13 +1,10 @@
 """
 Models for django_magnificent_messages
 """
-from functools import wraps
-
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.utils.functional import SimpleLazyObject
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 

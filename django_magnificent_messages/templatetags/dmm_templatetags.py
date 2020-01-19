@@ -1,5 +1,5 @@
 from django import template
-from ..messages import update_last_checked
+from ..messages import update_last_checked as api_update_last_checked
 
 register = template.Library()
 
@@ -8,4 +8,4 @@ register = template.Library()
 def update_last_checked(context):
     request = context.get("request")
     if request:
-        update_last_checked(request)
+        api_update_last_checked(request)
