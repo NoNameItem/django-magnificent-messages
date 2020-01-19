@@ -222,6 +222,10 @@ class Inbox(models.Model):
 
         messages = messages.filter(q)
 
+        messages = messages.select_related("author", "reply_to")
+
+        messages = messages.prefetch_related("sent_to_users", "sent_to_groups", "read_by", "archived_by")
+
         return messages
 
     def _all(self) -> QuerySet:
