@@ -132,47 +132,43 @@ class Inbox(models.Model):
     last_checked = models.DateTimeField(default=constants.MIN_DATETIME)
 
     @property
-    def all(self) -> SimpleLazyObject:
+    def all(self) -> QuerySet:
         return self._all()
 
     @property
     def all_count(self) -> int:
-        return self._all(set_last_checked=False).count()
+        return self._all().count()
 
     @property
-    def read(self) -> SimpleLazyObject:
-        return self._read(set_last_checked=False)
+    def read(self) -> QuerySet:
+        return self._read()
 
     @property
     def read_count(self) -> int:
-        return self._read(set_last_checked=False).count()
+        return self._read().count()
 
     @property
-    def unread(self) -> SimpleLazyObject:
+    def unread(self) -> QuerySet:
         return self._unread()
 
     @property
     def unread_count(self) -> int:
-        return self._unread(set_last_checked=False).count()
+        return self._unread().count()
 
     @property
-    def archived(self) -> SimpleLazyObject:
-        return self._get_messages_lazy(set_last_checked=False, archived=True)
+    def archived(self) -> QuerySet:
+        return self._get_messages(archived=True)
 
     @property
     def archived_count(self) -> int:
         return self.archived.count()
 
     @property
-    def new(self):
+    def new(self) -> QuerySet:
         return self._new()
 
     @property
-    def new_count(self):
-        return self._new(set_last_checked=False).count()
-
-    @property
-    def new_count_update_last_checked(self):
+    def new_count(self) -> int:
         return self._new().count()
 
     class Meta:
@@ -196,7 +192,7 @@ class Inbox(models.Model):
             )
         super(Inbox, self).save(force_insert, force_update, using, update_fields)
 
-    def _get_messages(self, set_last_checked: bool = True, archived: bool = False, q: Q = Q()) -> QuerySet:
+    def _get_messages(self, archived: bool = False, q: Q = Q()) -> QuerySet:
         """
         Get messages in this inbox and filter them with q.
 
@@ -208,15 +204,10 @@ class Inbox(models.Model):
 
         **You should not use this method directly. Use properties instead**
 
-        :param set_last_checked: should method update last_checked?
         :param archived: If False (default) - exclude archived. If true - notifications_show only archived
         :param q: Q object to filter messages
-        :return:
+        :return: Messages QuerySet
         """
-        # Update last checked
-        if set_last_checked:
-            self.last_checked = timezone.now()
-            self.save()
 
         # Get distinct messages pks
         to_user_q = Q(sent_to_users=self.user)
@@ -236,31 +227,21 @@ class Inbox(models.Model):
 
         return messages
 
-    def _get_messages_lazy(self, set_last_checked: bool = True, archived: bool = False,
-                           q: Q = Q()) -> SimpleLazyObject:
-        """
-        Lazy version of _get_messages
-        """
-
-        @wraps(self._get_messages)
-        def f():
-            return self._get_messages(set_last_checked, archived, q)
-
-        return SimpleLazyObject(f)
-
-    def _all(self, set_last_checked: bool = True) -> SimpleLazyObject:
+    def _all(self) -> QuerySet:
         """
         Returns all messages in inbox except archived
         """
-        return self._get_messages_lazy(set_last_checked)
+        return self._get_messages()
 
-    def _read(self, set_last_checked: bool = True) -> SimpleLazyObject:
-        return self._get_messages_lazy(set_last_checked,
-                                       q=Q(pk__in=self.user.read_messages.values("pk")))
+    def _read(self) -> QuerySet:
+        return self._get_messages(q=Q(pk__in=self.user.read_messages.values("pk")))
 
-    def _unread(self, set_last_checked: bool = True) -> SimpleLazyObject:
-        return self._get_messages_lazy(set_last_checked,
-                                       q=~Q(pk__in=self.user.read_messages.values("pk")))
+    def _unread(self) -> QuerySet:
+        return self._get_messages(q=~Q(pk__in=self.user.read_messages.values("pk")))
 
-    def _new(self, set_last_checked: bool = True) -> SimpleLazyObject:
-        return self._get_messages_lazy(set_last_checked, q=Q(created__gt=self.last_checked))
+    def _new(self) -> QuerySet:
+        return self._get_messages(q=Q(created__gt=self.last_checked))
+
+    def update_last_checked(self):
+        self.last_checked = timezone.now()
+        self.save()

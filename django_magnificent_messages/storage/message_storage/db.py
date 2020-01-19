@@ -15,6 +15,10 @@ class DatabaseStorage(BaseMessageStorage):
     storing last check date
     """
 
+    def update_last_checked(self):
+        if self._inbox:
+            self._inbox.update_last_checked()
+
     def __init__(self, request, *args, **kwargs):
         super(DatabaseStorage, self).__init__(request, *args, **kwargs)
         try:
@@ -59,9 +63,6 @@ class DatabaseStorage(BaseMessageStorage):
 
     def _get_new_messages_count(self) -> int:
         return getattr(self._inbox, "new_count", 0)
-
-    def _get_new_messages_count_update_last_check(self):
-        return getattr(self._inbox, "new_count_update_last_checked", 0)
 
     def _save_message(self, message: Message, author_pk, to_users_pk: Iterable, to_groups_pk: Iterable,
                       user_generated: bool = True, html_safe: bool = False, reply_to_pk=None) -> StoredMessage:
