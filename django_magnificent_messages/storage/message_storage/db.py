@@ -15,6 +15,9 @@ class DatabaseStorage(BaseMessageStorage):
     storing last check date
     """
 
+    MESSAGE_MODEL = models.Message
+    INBOX_MODEL = models.Inbox
+
     def update_last_checked(self):
         if self._inbox:
             self._inbox.update_last_checked()
@@ -24,14 +27,14 @@ class DatabaseStorage(BaseMessageStorage):
         try:
             if request.user.is_authenticated:
                 self.user = request.user
-                self._inbox, _ = models.Inbox.objects.get_or_create(user=request.user, main=True)
+                self._inbox, _ = self.INBOX_MODEL.objects.get_or_create(user=request.user, main=True)
             else:
                 self.user = None
                 self._inbox = None
         except AttributeError:
             self.user = None
             self._inbox = None
-        except models.Inbox.MultipleObjectsReturned:
+        except self.INBOX_MODEL.MultipleObjectsReturned:
             raise StorageError(self.__class__.__name__, "User `{0}` has more then one main inbox".format(request.user))
 
     def _get_all_messages(self) -> Iterable:
@@ -67,7 +70,7 @@ class DatabaseStorage(BaseMessageStorage):
     def _save_message(self, message: Message, author_pk, to_users_pk: Iterable, to_groups_pk: Iterable,
                       user_generated: bool = True, html_safe: bool = False, reply_to_pk=None) -> StoredMessage:
         reply_to = self._get_message(reply_to_pk)
-        new_message = models.Message(
+        new_message = self.MESSAGE_MODEL(
             level=message.level,
             raw_text=message.text,
             author_id=author_pk,
@@ -86,16 +89,16 @@ class DatabaseStorage(BaseMessageStorage):
     def _get_message(self, message_pk):
         if message_pk is not None:
             try:
-                message = models.Message.objects.get(pk=message_pk)
-            except models.Message.DoesNotExist:
+                message = self.MESSAGE_MODEL.objects.get(pk=message_pk)
+            except self.MESSAGE_MODEL.DoesNotExist:
                 raise MessageNotFoundError(message_pk)
-            except models.Message.MultipleObjectsReturned:
+            except self.MESSAGE_MODEL.MultipleObjectsReturned:
                 raise MultipleMessagesFoundError(message_pk)
             return message
         else:
             return None
 
-    def _stored_to_message(self, stored: models.Message) -> Union[StoredMessage, None]:
+    def _stored_to_message(self, stored) -> Union[StoredMessage, None]:
         """
         Convert message from internal storage representation to StoredMessage instance
         """
@@ -113,7 +116,7 @@ class DatabaseStorage(BaseMessageStorage):
                 created=stored.created,
                 modified=stored.modified,
                 replies=MessageIterator(stored.replies.all(), self._stored_to_message),
-                replies_count=stored.replies.all.count
+                replies_count=stored.replies.all().count
             )
         else:
             return None
