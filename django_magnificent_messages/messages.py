@@ -10,7 +10,7 @@ __all__ = (
     'all', 'all_count', 'read', 'read_count', 'unread', 'unread_count', 'archived', 'archived_count', 'new',
     'new_count',
     'add', 'secondary', 'primary', 'info', 'success', 'warning', 'error',
-    'MessageFailure'
+    'MessageFailure', 'update_last_checked'
 )
 
 
