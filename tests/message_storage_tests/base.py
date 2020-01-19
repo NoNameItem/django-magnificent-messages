@@ -598,3 +598,16 @@ class BaseMessageStorageTestCases:
             self.assertEqual(2, len(list(messages)))
             self.assertIn(self.read_message, list(messages))
             self.assertIn(self.bob_message_to_group1, list(messages))
+
+        def test_pagination(self):
+            p = self.bob_storage.all.paginate(1)
+
+            self.assertEqual(3, p.num_pages)
+
+            page_1 = p.get_page(1)
+            page_2 = p.get_page(2)
+            page_3 = p.get_page(3)
+
+            self.assertIn(self.read_message, list(page_1))
+            self.assertIn(self.bob_message_to_group1, list(page_2))
+            self.assertIn(self.alice_message_to_bob, list(page_3))
