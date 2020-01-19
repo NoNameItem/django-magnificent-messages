@@ -599,6 +599,25 @@ class BaseMessageStorageTestCases:
             self.assertIn(self.read_message, list(messages))
             self.assertIn(self.bob_message_to_group1, list(messages))
 
+        def test_simple_exclude(self):
+            messages = self.alice_storage.all.exclude(text="Read message")
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.bob_message_to_group1, list(messages))
+
+        def test_and_exclude(self):
+            messages = self.alice_storage.all.exclude(text="Read message", level=constants.INFO)
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.bob_message_to_group1, list(messages))
+
+        def test_django_lookup_exclude(self):
+            messages = self.alice_storage.all.exclude(text__startswith="Read")
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.bob_message_to_group1, list(messages))
+
+        def test_q_exclude(self):
+            messages = self.alice_storage.all.exclude(Q(text__startswith="Read") | Q(text__startswith="Bob"))
+            self.assertEqual(0, len(list(messages)))
+
         def test_pagination(self):
             p = self.bob_storage.all.paginate(1)
 

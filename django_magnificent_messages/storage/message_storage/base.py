@@ -66,6 +66,10 @@ class MessageIterator:
         new_stored_messages = self._stored_messages.filter(*args, **kwargs)
         return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
 
+    def exclude(self, *args, **kwargs):
+        new_stored_messages = self._stored_messages.exclude(*args, **kwargs)
+        return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+
     def paginate(self, per_page, orphans=0, allow_empty_first_page=True):
         return MessagePaginator(self._stored_messages, self._convert_function, self._fetch_all, per_page, orphans,
                                 allow_empty_first_page)
