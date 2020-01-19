@@ -111,7 +111,8 @@ class DatabaseStorage(BaseMessageStorage):
                 reply_to=self._stored_to_message(stored.reply_to),
                 pk=stored.pk,
                 created=stored.created,
-                modified=stored.modified
+                modified=stored.modified,
+                replies=MessageIterator(stored.replies, self._stored_to_message)
             )
         else:
             return None
