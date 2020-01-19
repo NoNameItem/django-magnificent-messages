@@ -14,9 +14,6 @@ __all__ = (
 )
 
 
-# TODO: Add pagination support
-# TODO: Split user-generated and system messages
-
 class MessageFailure(Exception):
     pass
 
