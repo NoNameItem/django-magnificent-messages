@@ -14,7 +14,6 @@ __all__ = (
 )
 
 
-# TODO: Add filters support
 # TODO: Add pagination support
 # TODO: Split user-generated and system messages
 

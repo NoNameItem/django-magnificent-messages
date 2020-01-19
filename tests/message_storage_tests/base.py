@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 
@@ -578,4 +579,22 @@ class BaseMessageStorageTestCases:
             self.assertSequenceEqual([], list(self.alice_storage.new))
 
         def test_simple_filter(self):
-            message = self.alice_storage.all.filter()
+            messages = self.alice_storage.all.filter(text="Read message")
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.read_message, list(messages))
+
+        def test_and_filter(self):
+            messages = self.alice_storage.all.filter(text="Read message", level=constants.INFO)
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.read_message, list(messages))
+
+        def test_django_lookup_filter(self):
+            messages = self.alice_storage.all.filter(text__startswith="Read")
+            self.assertEqual(1, len(list(messages)))
+            self.assertIn(self.read_message, list(messages))
+
+        def test_q_filter(self):
+            messages = self.alice_storage.all.filter(Q(text__startswith="Read") | Q(text__startswith="Bob"))
+            self.assertEqual(2, len(list(messages)))
+            self.assertIn(self.read_message, list(messages))
+            self.assertIn(self.bob_message_to_group1, list(messages))
