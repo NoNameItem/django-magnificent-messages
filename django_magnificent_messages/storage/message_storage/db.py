@@ -1,9 +1,9 @@
-from typing import Iterable
+from typing import Iterable, Union
 
 from django_magnificent_messages import models
 from django_magnificent_messages.storage.base import StorageError, Message
 from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage, StoredMessage, \
-    MessageNotFoundError, MultipleMessagesFoundError
+    MessageNotFoundError, MultipleMessagesFoundError, MessageIterator
 from django_magnificent_messages.storage.message_storage.db_signals import message_sent
 
 
@@ -95,23 +95,26 @@ class DatabaseStorage(BaseMessageStorage):
         else:
             return None
 
-    def _stored_to_message(self, stored: models.Message) -> StoredMessage:
+    def _stored_to_message(self, stored: models.Message) -> Union[StoredMessage, None]:
         """
         Convert message from internal storage representation to StoredMessage instance
         """
-        return StoredMessage(
-            stored.level,
-            stored.text,
-            stored.subject,
-            raw_text=stored.raw_text,
-            extra=stored.extra,
-            author=stored.author,
-            user_generated=stored.user_generated,
-            reply_to=stored.reply_to,
-            pk=stored.pk,
-            created=stored.created,
-            modified=stored.modified
-        )
+        if stored is not None:
+            return StoredMessage(
+                stored.level,
+                stored.text,
+                stored.subject,
+                raw_text=stored.raw_text,
+                extra=stored.extra,
+                author=stored.author,
+                user_generated=stored.user_generated,
+                reply_to=self._stored_to_message(stored.reply_to),
+                pk=stored.pk,
+                created=stored.created,
+                modified=stored.modified
+            )
+        else:
+            return None
 
     def _mark_read(self, message_pk):
         message = self._get_message(message_pk)
