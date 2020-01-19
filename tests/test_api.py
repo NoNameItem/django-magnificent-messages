@@ -49,7 +49,6 @@ class TestApiExceptions(TestCase):
         r = self.rf.get("/")
 
         self.assertEqual(0, notifications.count(r))
-        self.assertEqual(0, messages.new_count_update_last_checked(r))
         self.assertEqual(0, messages.new_count(r))
         self.assertEqual(0, messages.all_count(r))
         self.assertEqual(0, messages.read_count(r))

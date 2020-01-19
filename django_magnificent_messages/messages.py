@@ -14,6 +14,10 @@ __all__ = (
 )
 
 
+# TODO: Add filters support
+# TODO: Add pagination support
+# TODO: Split user-generated and system messages
+
 class MessageFailure(Exception):
     pass
 
@@ -140,16 +144,6 @@ def new(request: HttpRequest):
 
 
 def new_count(request: HttpRequest):
-    """
-    Return new messages count on the request if exist, otherwise return 0
-    """
-    try:
-        return request.dmm_backend.new_messages_count
-    except AttributeError:
-        return 0
-
-
-def new_count_update_last_checked(request: HttpRequest):
     """
     Return new messages count on the request if exist, otherwise return 0
     """
@@ -348,3 +342,10 @@ def unarchive(request: HttpRequest, message_pk, fail_silently=False):
         except MessageError:
             if not fail_silently:
                 raise
+
+
+def update_last_checked(request: HttpRequest) -> None:
+    try:
+        request.dmm_backend.update_last_checked()
+    except AttributeError:
+        pass

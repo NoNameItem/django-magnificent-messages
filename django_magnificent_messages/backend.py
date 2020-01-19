@@ -82,11 +82,6 @@ class MessageBackend:
     def sent_messages_count(self):
         return self._message_storage.sent_count
 
-    @property
-    def new_messages_count_update_last_checked(self) -> int:
-        """Get new messages count"""
-        return self._message_storage.new_count_update_last_checked
-
     def get_level(self) -> int:
         """Get minimal stored message/notification level"""
         return min(self._notification_storage.level, self._message_storage.level)
@@ -128,3 +123,6 @@ class MessageBackend:
 
     def unarchive(self, message_pk):
         self._message_storage.unarchive(message_pk)
+
+    def update_last_checked(self):
+        self._message_storage.update_last_checked()

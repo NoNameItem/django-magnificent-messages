@@ -123,9 +123,11 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                self.assertEqual(5, response.context['dmm']['messages']['all_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['unread_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['new_count'])
+                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # context variables should be executed
+                self.assertEqual(5, response.context['dmm']['messages']['all_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['new_count']())
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
@@ -154,9 +156,11 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                self.assertEqual(5, response.context['dmm']['messages']['all_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['unread_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['new_count'])
+                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # context variables should be executed
+                self.assertEqual(5, response.context['dmm']['messages']['all_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['new_count']())
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
@@ -185,9 +189,11 @@ class BaseMessageStorageTestCases:
                     response = self.client.post(add_url, json.dumps(data), content_type="application/json")
             response = self.client.get(show_url)
             self.assertIn('dmm', response.context)
-            self.assertEqual(len(messages), response.context['dmm']['messages']['all_count'])
-            self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count'])
-            self.assertEqual(len(messages), response.context['dmm']['messages']['new_count'])
+            # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+            # context variables should be executed
+            self.assertEqual(len(messages), response.context['dmm']['messages']['all_count']())
+            self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count']())
+            self.assertEqual(len(messages), response.context['dmm']['messages']['new_count']())
             messages.reverse()
             self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
             for msg in messages:
@@ -216,9 +222,11 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                self.assertEqual(5, response.context['dmm']['messages']['all_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['unread_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['new_count'])
+                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # context variables should be executed
+                self.assertEqual(5, response.context['dmm']['messages']['all_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['new_count']())
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
@@ -247,9 +255,11 @@ class BaseMessageStorageTestCases:
                 response = self.client.post(add_url, json.dumps(data), follow=True, content_type="application/json")
                 self.assertRedirects(response, show_url)
                 self.assertIn('dmm', response.context)
-                self.assertEqual(5, response.context['dmm']['messages']['all_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['unread_count'])
-                self.assertEqual(5, response.context['dmm']['messages']['new_count'])
+                # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+                # context variables should be executed
+                self.assertEqual(5, response.context['dmm']['messages']['all_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['unread_count']())
+                self.assertEqual(5, response.context['dmm']['messages']['new_count']())
                 messages = [StoredMessage(constants.DEFAULT_LEVELS[level.upper()],
                                           msg['text'], subject=None, extra=None) for msg in data['messages']]
                 messages.reverse()
@@ -278,9 +288,11 @@ class BaseMessageStorageTestCases:
                     response = self.client.post(add_url, json.dumps(data), content_type="application/json")
             response = self.client.get(show_url)
             self.assertIn('dmm', response.context)
-            self.assertEqual(len(messages), response.context['dmm']['messages']['all_count'])
-            self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count'])
-            self.assertEqual(len(messages), response.context['dmm']['messages']['new_count'])
+            # Counts passed in context as functions to avoid SQL-query execution untill last moment. So in tests this
+            # context variables should be executed
+            self.assertEqual(len(messages), response.context['dmm']['messages']['all_count']())
+            self.assertEqual(len(messages), response.context['dmm']['messages']['unread_count']())
+            self.assertEqual(len(messages), response.context['dmm']['messages']['new_count']())
             messages.reverse()
             self.assertEqual(list(response.context['dmm']['messages']['all']), messages)
             for msg in messages:
@@ -373,10 +385,6 @@ class BaseMessageStorageTestCases:
             self.assertEqual(3, self.bob_storage.new_count)
             self.assertEqual(0, self.carol_storage.new_count)
             self.assertEqual(0, self.anonymous_storage.new_count)
-            self.assertEqual(2, self.alice_storage.new_count_update_last_checked)
-            self.assertEqual(3, self.bob_storage.new_count_update_last_checked)
-            self.assertEqual(0, self.carol_storage.new_count_update_last_checked)
-            self.assertEqual(0, self.anonymous_storage.new_count_update_last_checked)
 
         def test_sent_count(self):
             """
@@ -507,11 +515,11 @@ class BaseMessageStorageTestCases:
             """
             Carol has totally empty inbox
             """
-            self.assertEqual(0, len(self.carol_storage.all))
-            self.assertEqual(0, len(self.carol_storage.read))
-            self.assertEqual(0, len(self.carol_storage.unread))
-            self.assertEqual(0, len(self.carol_storage.archived))
-            self.assertEqual(0, len(self.carol_storage.new))
+            self.assertEqual(0, len(list(self.carol_storage.all)))
+            self.assertEqual(0, len(list(self.carol_storage.read)))
+            self.assertEqual(0, len(list(self.carol_storage.unread)))
+            self.assertEqual(0, len(list(self.carol_storage.archived)))
+            self.assertEqual(0, len(list(self.carol_storage.new)))
 
         def test_carol_sent(self):
             """
@@ -526,19 +534,19 @@ class BaseMessageStorageTestCases:
             """
             Anonymous user always has no incoming or outcoming messages
             """
-            self.assertEqual(0, len(self.anonymous_storage.all))
-            self.assertEqual(0, len(self.anonymous_storage.read))
-            self.assertEqual(0, len(self.anonymous_storage.unread))
-            self.assertEqual(0, len(self.anonymous_storage.archived))
-            self.assertEqual(0, len(self.anonymous_storage.new))
-            self.assertEqual(0, len(self.anonymous_storage.sent))
+            self.assertEqual(0, len(list(self.anonymous_storage.all)))
+            self.assertEqual(0, len(list(self.anonymous_storage.read)))
+            self.assertEqual(0, len(list(self.anonymous_storage.unread)))
+            self.assertEqual(0, len(list(self.anonymous_storage.archived)))
+            self.assertEqual(0, len(list(self.anonymous_storage.new)))
+            self.assertEqual(0, len(list(self.anonymous_storage.sent)))
 
         def test_new_after_check(self):
             """
             new should respect previous checks
             """
             # Emulate check
-            list(self.alice_storage.all)
+            self.alice_storage.update_last_checked()
 
             # Right after check user has no new messages
             self.assertEqual(0, self.alice_storage.new_count)
@@ -560,7 +568,7 @@ class BaseMessageStorageTestCases:
             when user finally checks messages
             """
             # Emulate check
-            list(self.alice_storage.all)
+            self.alice_storage.update_last_checked()
 
             messages = []
             for i in range(5):
@@ -572,10 +580,10 @@ class BaseMessageStorageTestCases:
 
             self.assertEqual(5, self.alice_storage.new_count)
 
-            list(self.alice_storage.new)
+            self.alice_storage.update_last_checked()
 
             self.assertEqual(0, self.alice_storage.new_count)
-            self.assertSequenceEqual([], self.alice_storage.new)
+            self.assertSequenceEqual([], list(self.alice_storage.new))
 
         def test_mark_read_self(self):
             self.bob_storage.mark_read(self.alice_message_to_bob.pk)

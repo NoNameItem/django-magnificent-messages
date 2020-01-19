@@ -25,7 +25,6 @@ def django_magnificent_messages(request):
                 'sent_count': partial(messages.sent_count, request),
                 'new': messages.new(request),
                 'new_count': partial(messages.new_count, request),
-                'new_count_update_last_checked': partial(messages.new_count_update_last_checked, request),
             }
         }
     }

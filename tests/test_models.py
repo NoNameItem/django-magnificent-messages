@@ -130,9 +130,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         self.assertEqual(2, self.alice_inbox.new_count)
         self.assertEqual(3, self.bob_inbox.new_count)
         self.assertEqual(0, self.carol_inbox.new_count)
-        self.assertEqual(2, self.alice_inbox.new_count_update_last_checked)
-        self.assertEqual(3, self.bob_inbox.new_count_update_last_checked)
-        self.assertEqual(0, self.carol_inbox.new_count_update_last_checked)
+
 
     def test_alice_all(self):
         """
@@ -243,30 +241,30 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
 
     def test_all_iterate_last_checked(self):
         """
-        After iterate through all inbox.last_checked should increase
+        After iterate through all inbox.last_checked should stay the same
         """
         old_last_check = self.alice_inbox.last_checked
         # Emulate iterate
         messages = list(self.alice_inbox.all)
-        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
+        self.assertEqual(self.alice_inbox.last_checked, old_last_check)
 
     def test_unread_iterate_last_checked(self):
         """
-        After iterate through unread inbox.last_checked should increase
+        After iterate through unread inbox.last_checked should stay the same
         """
         old_last_check = self.alice_inbox.last_checked
         # Emulate iterate
         messages = list(self.alice_inbox.unread)
-        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
+        self.assertEqual(self.alice_inbox.last_checked, old_last_check)
 
     def test_new_iterate_last_checked(self):
         """
-        After iterate through new inbox.last_checked should increase
+        After iterate through new inbox.last_checked should stay the same
         """
         old_last_check = self.alice_inbox.last_checked
         # Emulate iterate
         messages = list(self.alice_inbox.new)
-        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
+        self.assertEqual(self.alice_inbox.last_checked, old_last_check)
 
     def test_read_iterate_last_checked(self):
         """
@@ -323,16 +321,6 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         messages = self.alice_inbox.archived
         self.assertEqual(self.alice_inbox.last_checked, old_last_check)
 
-    def test_new_no_iterate_last_check(self):
-        """
-        New can be passed around as variable, but before we iterate over it, inbox.last_checked should stay
-        the same
-        """
-        old_last_check = self.alice_inbox.last_checked
-        # Assigment
-        messages = self.alice_inbox.new_count_update_last_checked
-        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
-
     def test_count_last_check(self):
         """
         All counts other then new_count_update_last_checked should not change inbox.last_checked
@@ -349,20 +337,21 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         c = self.alice_inbox.new_count
         self.assertEqual(old_last_check, self.alice_inbox.last_checked)
 
-    def test_new_count_update_last_checked(self):
+    def update_last_checked(self):
         """
-        new_count_update_last_checked should change inbox.last_checked
+        update_last_checked should increase inbox.last_checked
         """
         old_last_check = self.alice_inbox.last_checked
-        c = self.alice_inbox.all_count
-        self.assertEqual(old_last_check, self.alice_inbox.last_checked)
+        # Assigment
+        self.alice_inbox.update_last_checked()
+        self.assertGreater(self.alice_inbox.last_checked, old_last_check)
 
     def test_new_after_check(self):
         """
         new should respect inbox.last_checked
         """
         # Emulate inbox check
-        list(self.alice_inbox.all)
+        self.alice_inbox.update_last_checked()
 
         # Right after inbox check user has no new messages
         self.assertEqual(0, self.alice_inbox.new_count)
@@ -385,7 +374,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         when user finally checks his inbox
         """
         # Emulate inbox check
-        list(self.alice_inbox.all)
+        self.alice_inbox.update_last_checked()
 
         messages = []
         for i in range(5):
@@ -398,7 +387,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         self.assertEqual(5, self.alice_inbox.new_count)
         messages.reverse()
         self.assertSequenceEqual(messages, self.alice_inbox.new)
-
+        self.alice_inbox.update_last_checked()
         self.assertEqual(0, self.alice_inbox.new_count)
         self.assertSequenceEqual([], self.alice_inbox.new)
 
