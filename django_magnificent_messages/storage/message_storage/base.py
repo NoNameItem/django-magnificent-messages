@@ -1,5 +1,9 @@
 from typing import Iterable, Callable
 
+from django.core.paginator import Paginator, Page
+from django.utils.safestring import mark_safe
+from lazy_object_proxy.utils import cached_property
+
 from django_magnificent_messages.storage.base import BaseStorage, Message
 
 
@@ -27,8 +31,12 @@ class StoredMessage(Message):
                  text: str,
                  subject: str = None,
                  extra=None,
+                 html_safe: bool = False,
                  **kwargs):
-        super().__init__(level, text, subject, extra)
+        if html_safe:
+            super().__init__(level, mark_safe(text), subject, extra)
+        else:
+            super().__init__(level, text, subject, extra)
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -54,6 +62,40 @@ class MessageIterator:
         except IndexError:
             raise StopIteration()
 
+    def filter(self, *args, **kwargs):
+        new_stored_messages = self._stored_messages.filter(*args, **kwargs)
+        return MessageIterator(new_stored_messages, self._convert_function, self._fetch_all)
+
+    def paginate(self, per_page, orphans=0, allow_empty_first_page=True):
+        return MessagePaginator(self._stored_messages, self._convert_function, self._fetch_all, per_page, orphans,
+                                allow_empty_first_page)
+
+
+class MessagePaginator(Paginator):
+    def __init__(self, object_list, convert_function, fetch_all, per_page, orphans=0, allow_empty_first_page=True):
+        super().__init__(object_list, per_page, orphans, allow_empty_first_page)
+        self._convert_function = convert_function
+        self._fetch_all = fetch_all
+
+    def _get_page(self, *args, **kwargs):
+        """
+        Return an instance of a single page.
+
+        This hook can be used by subclasses to use an alternative to the
+        standard :cls:`Page` object.
+        """
+        return MessagePage(self._convert_function, self._fetch_all, *args, **kwargs)
+
+
+class MessagePage(Page):
+    def __init__(self, convert_function, fetch_all, object_list, number, paginator, *args, **kwargs):
+        super().__init__(object_list, number, paginator)
+        self._convert_function = convert_function
+        self._fetch_all = fetch_all
+
+    def __getitem__(self, index):
+        return self._convert_function(super(MessagePage, self).__getitem__(index))
+
 
 class BaseMessageStorage(BaseStorage):
     """
@@ -75,31 +117,36 @@ class BaseMessageStorage(BaseStorage):
     overridden.**
     """
 
+    ITERATOR_CLASS = MessageIterator
+
     # Storage API
+
+    def wrap_in_iterator(self, messages):
+        return self.ITERATOR_CLASS(messages, self._stored_to_message)
 
     @property
     def all(self) -> Iterable:
-        return MessageIterator(self._get_all_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_all_messages())
 
     @property
     def read(self) -> Iterable:
-        return MessageIterator(self._get_read_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_read_messages())
 
     @property
     def unread(self) -> Iterable:
-        return MessageIterator(self._get_unread_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_unread_messages())
 
     @property
     def archived(self) -> Iterable:
-        return MessageIterator(self._get_archived_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_archived_messages())
 
     @property
     def new(self) -> Iterable:
-        return MessageIterator(self._get_new_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_new_messages())
 
     @property
     def sent(self) -> Iterable:
-        return MessageIterator(self._get_sent_messages(), self._stored_to_message)
+        return self.wrap_in_iterator(self._get_sent_messages())
 
     @property
     def all_count(self) -> int:

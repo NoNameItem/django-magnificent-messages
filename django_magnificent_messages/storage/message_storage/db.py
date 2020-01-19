@@ -72,7 +72,7 @@ class DatabaseStorage(BaseMessageStorage):
         reply_to = self._get_message(reply_to_pk)
         new_message = self.MESSAGE_MODEL(
             level=message.level,
-            raw_text=message.text,
+            text=message.text,
             author_id=author_pk,
             subject=message.subject,
             extra=message.extra,
@@ -107,8 +107,9 @@ class DatabaseStorage(BaseMessageStorage):
                 stored.level,
                 stored.text,
                 stored.subject,
-                raw_text=stored.raw_text,
-                extra=stored.extra,
+                # raw_text=stored.raw_text,
+                stored.extra,
+                stored.html_safe,
                 author=stored.author,
                 user_generated=stored.user_generated,
                 reply_to=self._stored_to_message(stored.reply_to),

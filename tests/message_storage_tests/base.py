@@ -1,11 +1,11 @@
 import json
 
-from django.contrib.auth.models import AnonymousUser, Group, User
+from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 
 from django_magnificent_messages import constants, models
-from django_magnificent_messages.models import Message, MessageNotSentToUserError
+from django_magnificent_messages.models import Message
 from django_magnificent_messages.storage.message_storage.base import StoredMessage
 from tests.utils import TestMessagesMixin
 
@@ -79,18 +79,10 @@ class BaseMessageStorageTestCases:
             self.assertSequenceEqual([self.group1, self.group2], message.sent_to_groups.all())
 
         def test_convert(self):
-            message = Message.objects.create(pk=1, level=constants.INFO, raw_text="Alice message to Bob",
+            message = Message.objects.create(pk=1, level=constants.INFO, text="Alice message to Bob",
                                              author=self.alice, user_generated=True)
             message.sent_to_users.add(self.bob)
-            converted = StoredMessage(
-                constants.INFO,
-                "Alice message to Bob",
-                subject=None,
-                extra=None,
-                author=self.alice,
-                user_generated=True,
-                reply_to=None
-            )
+
             stored = self.alice_storage._stored_to_message(message)
             self.assertEqual(constants.INFO, stored.level)
             self.assertEqual("Alice message to Bob", stored.text)
@@ -553,7 +545,7 @@ class BaseMessageStorageTestCases:
             self.assertEqual(0, len(list(self.alice_storage.new)))
 
             # New message
-            new_message = Message.objects.create(level=constants.INFO, raw_text="Alice message to Bob",
+            new_message = Message.objects.create(level=constants.INFO, text="Alice message to Bob",
                                                  author=self.bob, user_generated=True)
             new_message.sent_to_users.add(self.alice)
 
@@ -572,7 +564,7 @@ class BaseMessageStorageTestCases:
 
             messages = []
             for i in range(5):
-                new_message = Message.objects.create(level=constants.INFO, raw_text="Message {0}".format(i + 1),
+                new_message = Message.objects.create(level=constants.INFO, text="Message {0}".format(i + 1),
                                                      author=self.bob, user_generated=True)
                 new_message.sent_to_users.add(self.alice)
                 messages.append(new_message)
@@ -585,66 +577,5 @@ class BaseMessageStorageTestCases:
             self.assertEqual(0, self.alice_storage.new_count)
             self.assertSequenceEqual([], list(self.alice_storage.new))
 
-        def test_mark_read_self(self):
-            self.bob_storage.mark_read(self.alice_message_to_bob.pk)
-            messages = list(self.bob_storage.read)
-            self.assertIn(self.alice_message_to_bob, messages)
-
-        def test_mark_read_group_self(self):
-            self.alice_storage.mark_read(self.bob_message_to_group1.pk)
-            messages = list(self.alice_storage.read)
-            self.assertIn(self.bob_message_to_group1, messages)
-            self.assertNotIn(self.bob_message_to_group1, list(self.bob_storage.read))
-
-        def test_mark_read_other(self):
-            with self.assertRaisesMessage(MessageNotSentToUserError,
-                                          "<Message: 1> was not sent to user, who tried to mark it as read"):
-                self.carol_storage.mark_read(self.alice_message_to_bob.pk)
-
-        def test_mark_unread_self(self):
-            self.bob_storage.mark_unread(self.read_message.pk)
-            messages = list(self.bob_storage.unread)
-            self.assertIn(self.read_message, messages)
-
-        def test_mark_unread_group_self(self):
-            self.alice_storage.mark_unread(self.read_message.pk)
-            messages = list(self.alice_storage.unread)
-            self.assertIn(self.read_message, messages)
-            self.assertNotIn(self.read_message, list(self.bob_storage.unread))
-
-        def test_mark_unread_other(self):
-            with self.assertRaisesMessage(MessageNotSentToUserError,
-                                          "<Message: 3> was not sent to user, who tried to mark it as read"):
-                self.carol_storage.mark_read(self.read_message.pk)
-
-        def test_archive_self(self):
-            self.bob_storage.archive(self.alice_message_to_bob.pk)
-            messages = list(self.bob_storage.archived)
-            self.assertIn(self.alice_message_to_bob, messages)
-
-        def test_archive_group_self(self):
-            self.alice_storage.archive(self.bob_message_to_group1.pk)
-            messages = list(self.alice_storage.archived)
-            self.assertIn(self.bob_message_to_group1, messages)
-            self.assertNotIn(self.bob_message_to_group1, list(self.bob_storage.archived))
-
-        def test_archive_other(self):
-            with self.assertRaisesMessage(MessageNotSentToUserError,
-                                          "<Message: 1> was not sent to user, who tried to archive it"):
-                self.carol_storage.archive(self.alice_message_to_bob.pk)
-
-        def test_unarchive_self(self):
-            self.bob_storage.unarchive(self.archived_message.pk)
-            messages = list(self.bob_storage.all)
-            self.assertIn(self.archived_message, messages)
-
-        def test_unarchive_group_self(self):
-            self.alice_storage.unarchive(self.archived_message.pk)
-            messages = list(self.alice_storage.all)
-            self.assertIn(self.archived_message, messages)
-            self.assertNotIn(self.archived_message, list(self.bob_storage.all))
-
-        def test_unarchive_other(self):
-            with self.assertRaisesMessage(MessageNotSentToUserError,
-                                          "<Message: 4> was not sent to user, who tried to archive it"):
-                self.carol_storage.archive(self.archived_message.pk)
+        def test_simple_filter(self):
+            message = self.alice_storage.all.filter()

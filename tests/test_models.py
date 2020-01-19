@@ -358,7 +358,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
         self.assertEqual(0, len(list(self.alice_inbox.new)))
 
         # New message
-        new_message = Message.objects.create(level=constants.INFO, raw_text="Alice message to Bob",
+        new_message = Message.objects.create(level=constants.INFO, text="Alice message to Bob",
                                              author=self.bob, user_generated=True)
         new_message.sent_to_users.add(self.alice)
 
@@ -378,7 +378,7 @@ class InboxModelTestCase(TestMessagesMixin, TestCase):
 
         messages = []
         for i in range(5):
-            new_message = Message.objects.create(level=constants.INFO, raw_text="Message {0}".format(i + 1),
+            new_message = Message.objects.create(level=constants.INFO, text="Message {0}".format(i + 1),
                                                  author=self.bob, user_generated=True)
             new_message.sent_to_users.add(self.alice)
             messages.append(new_message)

@@ -29,7 +29,7 @@ class Message(TimeStampedModel):
     level = models.IntegerField()
 
     subject = models.TextField(blank=True, null=True)
-    raw_text = models.TextField()
+    text = models.TextField()
     extra = JSONField(blank=True, null=True)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="outbox")
@@ -46,11 +46,11 @@ class Message(TimeStampedModel):
                                          db_table="mm_message_archived_by_user")
     html_safe = models.BooleanField(default=False)
 
-    @property
-    def text(self):
-        if self.html_safe:
-            return mark_safe(self.raw_text)
-        return self.raw_text
+    # @property
+    # def text(self):
+    #     if self.html_safe:
+    #         return mark_safe(self.raw_text)
+    #     return self.raw_text
 
     class Meta:
         db_table = "mm_message"
@@ -197,7 +197,7 @@ class Inbox(models.Model):
 
         Uses two queries to avoid duplication of messages sent to user directly and through the groups, or through
         two and more groups. Can't use distinct() because Oracle does not support distinct on NCLOB fields and
-        Message model has such fields (subject, raw_text and extra)
+        Message model has such fields (subject, text and extra)
 
         **You should not use this method directly. Use properties instead**
 

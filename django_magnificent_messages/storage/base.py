@@ -20,7 +20,7 @@ class Message:
 
     def prepare(self):
         """
-        Prepare the message for serialization by forcing the ``subject`` and ``raw_text``
+        Prepare the message for serialization by forcing the ``subject`` and ``text``
         to str in case they are lazy translations.
         """
         if self.subject is not None:
