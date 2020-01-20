@@ -1,5 +1,6 @@
 from typing import Iterable
 
+from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 
 from django_magnificent_messages.storage.message_storage.base import BaseMessageStorage
@@ -13,72 +14,72 @@ class MessageBackend:
             import_string(config.DMM_NOTIFICATION_STORAGE)(request)  # type: BaseNotificationStorage
         self._message_storage = import_string(config.DMM_MESSAGE_STORAGE)(request)  # type: BaseMessageStorage
 
-    @property
+    @cached_property
     def notifications(self) -> Iterable:
         """Get notifications iterable"""
         return self._notification_storage
 
-    @property
+    @cached_property
     def notifications_count(self) -> int:
         """Get notifications count"""
         return len(self._notification_storage)
 
-    @property
+    @cached_property
     def all_messages(self) -> Iterable:
         """Get all messages"""
         return self._message_storage.all
 
-    @property
+    @cached_property
     def read_messages(self) -> Iterable:
         """Get read messages"""
         return self._message_storage.read
 
-    @property
+    @cached_property
     def unread_messages(self) -> Iterable:
         """Get unread messages"""
         return self._message_storage.unread
 
-    @property
+    @cached_property
     def archived_messages(self) -> Iterable:
         """Get archived messages"""
         return self._message_storage.archived
 
-    @property
+    @cached_property
     def new_messages(self) -> Iterable:
         """Get new messages"""
         return self._message_storage.new
 
-    @property
+    @cached_property
     def sent_messages(self) -> Iterable:
         """Get sent messages"""
         return self._message_storage.sent
 
-    @property
+    @cached_property
     def all_messages_count(self) -> int:
         """Get all messages count"""
         return self._message_storage.all_count
 
-    @property
+    @cached_property
     def read_messages_count(self) -> int:
         """Get read messages count"""
         return self._message_storage.read_count
 
-    @property
+    @cached_property
     def unread_messages_count(self) -> int:
         """Get unread messages count"""
         return self._message_storage.unread_count
 
-    @property
+    @cached_property
     def archived_messages_count(self) -> int:
         """Get archived messages count"""
         return self._message_storage.archived_count
 
-    @property
+    @cached_property
     def new_messages_count(self) -> int:
         """Get new messages count"""
         return self._message_storage.new_count
 
-    @property
+    @cached_property
     def sent_messages_count(self):
         return self._message_storage.sent_count
 
