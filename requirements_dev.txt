@@ -3,7 +3,7 @@ gitchangelog
 pylint
 pylint-django
 flake8>=2.1.0
-bandit
+bandit==1.5.1
 coverage
 mock>=1.0.1
 django-appconf
